@@ -106,7 +106,7 @@ var Player = function (game, opts) {
     this.color = opts.color;
     this.nodes = opts.nodes;
     this.wires = [];
-    this.rows = [];
+    this.wireAtRow = [];
 
     this.drawSide();
 };
@@ -133,12 +133,13 @@ Player.prototype.drawSide = function () {
         if (row + wireType.rows <= 12) {
             this.wires.push({
                 row: row,
-                hasNode: false,
-                type: wireType
+                top: 100 + row * 40,
+                type: wireType,
+                nodes: Array(wireType.rows)
             });
 
             for (var i = 0; i < wireType.rows; i++) {
-                this.rows.push(this.wires.length - 1);
+                this.wireAtRow.push(this.wires.length - 1);
             }
 
             row += wireType.rows;
@@ -154,13 +155,14 @@ Player.prototype.drawNodeStack = function () {
     c.fillStyle = '#666';
     c.fillRect(-350, 40, 300, 40);
 
-    c.fillStyle = this.color;
     for (var i = 0; i < this.nodes; i++) {
         this.drawNode(-345 + i * 30, 60);
     }
 };
 
 Player.prototype.drawNode = function (x, y) {
+    c.fillStyle = this.color;
+    c.strokeStyle = '#000';
     c.beginPath();
     c.moveTo(x, y);
     c.lineTo(x, y - 10);
@@ -172,36 +174,47 @@ Player.prototype.drawNode = function (x, y) {
 };
 
 Player.prototype.drawWire = function (wire) {
-    var t = 100 + wire.row * 40;
-    c.strokeStyle = wire.hasNode ? this.color : '#000';
+    wire.type.draw(wire, this.color);
 
-    wire.type.draw(t);
-    c.strokeStyle = '#000';
-    if (wire.hasNode) {
-        this.drawNode(-340, t + wire.type.startRow * 40 + 20);
-    }
+    // Draw nodes on all the starting rows that have them.
+    wire.type.startRows.forEach(function (startRow) {
+        if (wire.nodes[startRow]) {
+            this.drawNode(-340, wire.top + startRow * 40 + 20);
+        }
+    }, this);
 };
 
 Player.prototype.onRowSelect = function (row) {
+    // Abort if player is out of nodes.
     if (!this.nodes) {
         return;
     }
 
-    var wire = this.wires[this.rows[row]];
-    if (wire.hasNode) {
+    var wire = this.wires[this.wireAtRow[row]];
+    var wireRow = row - wire.row;
+
+    // Abort if there's already a node on this row or this isn't a starting row.
+    if (wire.nodes[wireRow] || wire.type.startRows.indexOf(wireRow) === -1) {
         return;
     }
-    wire.hasNode = true;
+
+    wire.nodes[wireRow] = true;
     this.nodes -= 1;
 
     this.setDrawSide();
     this.drawNodeStack();
 
-    c.fillStyle = this.color;
-    this.drawWire(wire);
+    // If there are nodes on all start rows, update the light at each end row.
+    // Works for now, but not necessarily the case for future wire types.
+    if (wire.type.startRows.every(function (startRow) {
+        return wire.nodes[startRow];
+    })) {
+        wire.type.endRows.forEach(function (endRow) {
+            this.game.setRowLight(wire.row + endRow, this);
+        }, this);
+    }
 
-    var endRow = wire.row + wire.type.endRow;
-    this.game.setRowLight(endRow, this);
+    this.drawWire(wire);
 };
 
 
@@ -209,26 +222,75 @@ Player.prototype.onRowSelect = function (row) {
 
 var wireTypes = [
     {
+        // Straight
         rows: 1,
-        startRow: 0,
-        endRow: 0,
-        draw: function (t) {
+        startRows: [0],
+        endRows: [0],
+        draw: function (wire, color) {
+            c.strokeStyle = wire.nodes[0] ? color : '#000';
             c.beginPath();
-            c.moveTo(-360, t + 20);
-            c.lineTo(-40, t + 20);
+            c.moveTo(-360, wire.top + 20);
+            c.lineTo(-40, wire.top + 20);
             c.stroke();
         }
     },
     {
+        // Zig-zag
         rows: 2,
-        startRow: 0,
-        endRow: 1,
-        draw: function (t) {
+        startRows: [0],
+        endRows: [1],
+        draw: function (wire, color) {
+            c.strokeStyle = wire.nodes[0] ? color : '#000';
             c.beginPath();
-            c.moveTo(-360, t + 20);
-            c.lineTo(-200, t + 20);
-            c.lineTo(-200, t + 60);
-            c.lineTo(-40, t + 60);
+            c.moveTo(-360, wire.top + 20);
+            c.lineTo(-200, wire.top + 20);
+            c.lineTo(-200, wire.top + 60);
+            c.lineTo(-40, wire.top + 60);
+            c.stroke();
+        }
+    },
+    {
+        // Fork
+        rows: 3,
+        startRows: [1],
+        endRows: [0, 2],
+        draw: function (wire, color) {
+            c.strokeStyle = wire.nodes[1] ? color : '#000';
+            c.beginPath();
+            c.moveTo(-360, wire.top + 60);
+            c.lineTo(-200, wire.top + 60);
+            c.lineTo(-200, wire.top + 20);
+            c.lineTo(-40, wire.top + 20);
+            c.moveTo(-200, wire.top + 60);
+            c.lineTo(-200, wire.top + 100);
+            c.lineTo(-40, wire.top + 100);
+            c.stroke();
+        }
+    },
+    {
+        // Reverse fork
+        rows: 3,
+        startRows: [0, 2],
+        endRows: [1],
+        draw: function (wire, color) {
+            c.strokeStyle = wire.nodes[0] ? color : '#000';
+            c.beginPath();
+            c.moveTo(-360, wire.top + 20);
+            c.lineTo(-200, wire.top + 20);
+            c.lineTo(-200, wire.top + 60);
+            c.stroke();
+
+            c.strokeStyle = wire.nodes[2] ? color : '#000';
+            c.beginPath();
+            c.moveTo(-360, wire.top + 100);
+            c.lineTo(-200, wire.top + 100);
+            c.lineTo(-200, wire.top + 60);
+            c.stroke();
+
+            c.strokeStyle = wire.nodes[0] && wire.nodes[2] ? color : '#000';
+            c.beginPath();
+            c.moveTo(-200, wire.top + 60);
+            c.lineTo(-40, wire.top + 60);
             c.stroke();
         }
     }
