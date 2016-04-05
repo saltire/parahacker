@@ -1,11 +1,11 @@
 var canvas = document.getElementById('game');
-var scale = 10;
+var scale = 1;
 
 
 // Start game loop
 
 var game = new Game();
-var renderer = new PixelRenderer(game, canvas, scale);
+var renderer = new VectorRenderer(game, canvas, scale);
 
 function drawFrame(ts) {
     renderer.drawFrame(ts);
