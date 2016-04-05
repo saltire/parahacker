@@ -1,20 +1,30 @@
+// Canvas and context
+
 var canvas = document.getElementById('game');
 canvas.width = 800;
 canvas.height = 600;
-canvas.addEventListener('click', onClick, false);
 
 var c = canvas.getContext('2d');
 // set origin point at centre top
 c.translate(canvas.width / 2, 0);
 
 
+// Event handlers
+
+canvas.addEventListener('click', function (e) {
+    game.onClick(e.offsetX, e.offsetY);
+}, false);
+
+
 // Game object
 
 var Game = function () {
+    this.background = '#666';
+
     // draw background
     c.fillStyle = '#000';
     c.fillRect(-canvas.width / 2, 0, canvas.width, canvas.height);
-    c.fillStyle = '#666';
+    c.fillStyle = this.background;
     c.fillRect(-canvas.width / 2 + 10, 10, canvas.width - 20, canvas.height - 20);
 
     // set default line properties
@@ -71,7 +81,7 @@ Game.prototype.drawTopLight = function () {
 
 Game.prototype.drawRowLight = function (row) {
     var t = 100 + row * 40;
-    c.fillStyle = this.rowLights[row] !== null ? this.players[this.rowLights[row]].color : '#666';
+    c.fillStyle = this.rowLights[row] !== null ? this.players[this.rowLights[row]].color : this.background;
     c.fillRect(-40, t, 80, 40);
     c.strokeRect(-40, t, 80, 40);
 };
@@ -300,13 +310,3 @@ var wireTypes = [
 // Initialize
 
 var game = new Game();
-
-
-// Event handlers
-
-function onClick(e) {
-    var x = e.offsetX;
-    var y = e.offsetY;
-
-    game.onClick(x, y);
-}
