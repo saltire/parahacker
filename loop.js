@@ -1,20 +1,18 @@
-var scale = 10;
-
-
 // Canvas and context
 
 var canvas = document.getElementById('game');
+
+// Pixel renderer
+var scale = 10;
 canvas.width = 64 * scale;
 canvas.height = 64 * scale;
 
+// Vector renderer
+// var scale = 1;
+// canvas.width = 800;
+// canvas.height = 600;
+
 var c = canvas.getContext('2d');
-
-
-// Event handlers
-
-canvas.addEventListener('click', function (e) {
-    game.onClick(Math.floor(e.offsetX / scale), Math.floor(e.offsetY / scale));
-}, false);
 
 
 // Game object
@@ -40,20 +38,6 @@ Game.prototype.setRowLight = function (row, player) {
     this.rowLights[row] = player.side;
 };
 
-Game.prototype.onClick = function (x, y) {
-    var row = Math.floor((y - 13) / 4);
-    if (row < 0 || row >= 12) {
-        return;
-    }
-
-    if (x >= 6 && x <= 26) {
-        this.players[0].onRowSelect(row);
-    }
-    else if (x >= 37 && x <= 57) {
-        this.players[1].onRowSelect(row);
-    }
-};
-
 
 // Player object
 
@@ -71,7 +55,6 @@ var Player = function (game, opts) {
         if (row + wireType.rows <= 12) {
             var wire = {
                 row: row,
-                top: 14.5 + row * 4,
                 type: wireType,
                 nodes: Array(wireType.rows)
             };
@@ -144,11 +127,11 @@ Player.prototype.wireTypes = [
 
 // Renderer object
 
-var Renderer = function (game, scale) {
+var PixelRenderer = function (game, scale) {
     this.game = game;
 
     this.scale = scale || 1;
-    c.scale(scale, scale);
+    c.scale(this.scale, this.scale);
 
     c.lineWidth = 1;
     c.lineCap = 'square';
@@ -162,11 +145,11 @@ var Renderer = function (game, scale) {
     this.frame.onload = this.imageLoaded.bind(this);
 };
 
-Renderer.prototype.imageLoaded = function () {
+PixelRenderer.prototype.imageLoaded = function () {
     this.ready = true;
 };
 
-Renderer.prototype.drawFrame = function (ts) {
+PixelRenderer.prototype.drawFrame = function (ts) {
     if (!this.ready) {
         return;
     }
@@ -188,7 +171,7 @@ Renderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-Renderer.prototype.drawTopLight = function () {
+PixelRenderer.prototype.drawTopLight = function () {
     var counts = [0, 0];
     this.game.rowLights.forEach(function (side) {
         if (side !== null) {
@@ -209,13 +192,13 @@ Renderer.prototype.drawTopLight = function () {
     c.fillRect(28, 4, 8, 8);
 };
 
-Renderer.prototype.drawRowLight = function (side, row) {
+PixelRenderer.prototype.drawRowLight = function (side, row) {
     var t = 13 + row * 4;
     c.fillStyle = side !== null ? this.game.players[side].color : this.background;
     c.fillRect(28, t, 8, 3);
 };
 
-Renderer.prototype.drawPlayerSide = function (player) {
+PixelRenderer.prototype.drawPlayerSide = function (player) {
     c.setTransform((player.side ? -1 : 1) * this.scale, 0, 0, this.scale, player.side ? canvas.width : 0, 0);
 
     // Draw side bar.
@@ -232,7 +215,7 @@ Renderer.prototype.drawPlayerSide = function (player) {
     player.wires.forEach(this.drawWire.bind(this, player));
 };
 
-Renderer.prototype.drawNode = function (x, y, color) {
+PixelRenderer.prototype.drawNode = function (x, y, color) {
     c.fillStyle = color;
     c.strokeStyle = '#000';
     c.beginPath();
@@ -247,66 +230,251 @@ Renderer.prototype.drawNode = function (x, y, color) {
     c.stroke();
 };
 
-Renderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name](wire, player.color);
+PixelRenderer.prototype.drawWire = function (player, wire) {
+    this.drawWireType[wire.type.name](wire, 14.5 + wire.row * 4, player.color);
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
         if (wire.nodes[startRow]) {
-            this.drawNode(7, wire.top + startRow * 4, player.color);
+            this.drawNode(7, 14.5 + (wire.row + startRow) * 4, player.color);
         }
     }, this);
 };
 
-Renderer.prototype.drawWireType = {
-    straight: function (wire, color) {
+PixelRenderer.prototype.drawWireType = {
+    straight: function (wire, y, color) {
         c.strokeStyle = wire.nodes[0] ? color : '#000';
         c.beginPath();
-        c.moveTo(5.5, wire.top);
-        c.lineTo(27.5, wire.top);
+        c.moveTo(5.5, y);
+        c.lineTo(27.5, y);
         c.stroke();
     },
-    zigzag: function (wire, color) {
+    zigzag: function (wire, y, color) {
         c.strokeStyle = wire.nodes[0] ? color : '#000';
         c.beginPath();
-        c.moveTo(5.5, wire.top);
-        c.lineTo(16.5, wire.top);
-        c.lineTo(16.5, wire.top + 4);
-        c.lineTo(27.5, wire.top + 4);
+        c.moveTo(5.5, y);
+        c.lineTo(16.5, y);
+        c.lineTo(16.5, y + 4);
+        c.lineTo(27.5, y + 4);
         c.stroke();
     },
-    fork: function (wire, color) {
+    fork: function (wire, y, color) {
         c.strokeStyle = wire.nodes[1] ? color : '#000';
         c.beginPath();
-        c.moveTo(5.5, wire.top + 4);
-        c.lineTo(16.5, wire.top + 4);
-        c.lineTo(16.5, wire.top);
-        c.lineTo(27.5, wire.top);
-        c.moveTo(16.5, wire.top + 4);
-        c.lineTo(16.5, wire.top + 8);
-        c.lineTo(27.5, wire.top + 8);
+        c.moveTo(5.5, y + 4);
+        c.lineTo(16.5, y + 4);
+        c.lineTo(16.5, y);
+        c.lineTo(27.5, y);
+        c.moveTo(16.5, y + 4);
+        c.lineTo(16.5, y + 8);
+        c.lineTo(27.5, y + 8);
         c.stroke();
     },
-    fork2: function (wire, color) {
+    fork2: function (wire, y, color) {
         c.strokeStyle = wire.nodes[0] ? color : '#000';
         c.beginPath();
-        c.moveTo(5.5, wire.top);
-        c.lineTo(16.5, wire.top);
-        c.lineTo(16.5, wire.top + 4);
+        c.moveTo(5.5, y);
+        c.lineTo(16.5, y);
+        c.lineTo(16.5, y + 4);
         c.stroke();
 
         c.strokeStyle = wire.nodes[2] ? color : '#000';
         c.beginPath();
-        c.moveTo(5.5, wire.top + 8);
-        c.lineTo(16.5, wire.top + 8);
-        c.lineTo(16.5, wire.top + 4);
+        c.moveTo(5.5, y + 8);
+        c.lineTo(16.5, y + 8);
+        c.lineTo(16.5, y + 4);
         c.stroke();
 
         c.strokeStyle = wire.nodes[0] && wire.nodes[2] ? color : '#000';
         c.beginPath();
-        c.moveTo(16.5, wire.top + 4);
-        c.lineTo(27.5, wire.top + 4);
+        c.moveTo(16.5, y + 4);
+        c.lineTo(27.5, y + 4);
         c.stroke();
+    }
+};
+
+PixelRenderer.prototype.onClick = function (x, y) {
+    var row = Math.floor((y - 13) / 4);
+    if (row < 0 || row >= 12) {
+        return;
+    }
+
+    if (x >= 6 && x <= 26) {
+        this.game.players[0].onRowSelect(row);
+    }
+    else if (x >= 37 && x <= 57) {
+        this.game.players[1].onRowSelect(row);
+    }
+};
+
+
+// Renderer object
+
+var VectorRenderer = function (game, scale) {
+    this.game = game;
+
+    this.scale = scale || 1;
+    c.scale(this.scale, this.scale);
+
+    c.lineWidth = 4;
+    c.lineCap = 'square';
+    c.lineJoin = 'bevel';
+
+    this.background = '#666';
+};
+
+VectorRenderer.prototype.drawFrame = function (ts) {
+    // Fill canvas with background.
+    c.fillStyle = this.background;
+    c.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw lights.
+    this.drawTopLight();
+    game.rowLights.forEach(this.drawRowLight.bind(this));
+
+    // Draw player sides.
+    this.game.players.forEach(this.drawPlayerSide.bind(this));
+};
+
+VectorRenderer.prototype.drawTopLight = function () {
+    var counts = [0, 0];
+    this.game.rowLights.forEach(function (side) {
+        if (side !== null) {
+            counts[side] += 1;
+        }
+    });
+
+    if (counts[0] > counts[1]) {
+        c.fillStyle = this.game.players[0].color;
+    }
+    else if (counts[0] < counts[1]) {
+        c.fillStyle = this.game.players[1].color;
+    }
+    else {
+        c.fillStyle = '#000';
+    }
+    c.strokeStyle = '#000';
+    c.fillRect(360, 20, 80, 80);
+    c.strokeRect(360, 20, 80, 80);
+};
+
+VectorRenderer.prototype.drawRowLight = function (side, row) {
+    var t = 100 + row * 40;
+
+    c.fillStyle = side !== null ? this.game.players[side].color : this.background;
+    c.strokeStyle = '#000';
+    c.fillRect(360, t, 80, 40);
+    c.strokeRect(360, t, 80, 40);
+};
+
+VectorRenderer.prototype.drawPlayerSide = function (player) {
+    c.setTransform((player.side ? -1 : 1) * this.scale, 0, 0, this.scale, player.side ? canvas.width : 0, 0);
+
+    // Draw side bar.
+    c.fillStyle = player.color;
+    c.strokeStyle = '#000';
+    c.fillRect(20, 20, 20, 560);
+    c.strokeRect(20, 20, 20, 560);
+
+    // Draw node area.
+    c.fillStyle = '#666';
+    c.fillRect(50, 40, 300, 40);
+    for (var i = 0; i < player.nodes; i++) {
+        this.drawNode(55 + i * 30, 60, player.color);
+    }
+
+    player.wires.forEach(this.drawWire.bind(this, player));
+};
+
+VectorRenderer.prototype.drawNode = function (x, y, color) {
+    c.fillStyle = color;
+    c.strokeStyle = '#000';
+    c.beginPath();
+    c.moveTo(x, y);
+    c.lineTo(x, y - 10);
+    c.lineTo(x + 10, y - 10);
+    c.lineTo(x + 20, y);
+    c.lineTo(x + 10, y + 10);
+    c.lineTo(x, y + 10);
+    c.lineTo(x, y);
+    c.fill();
+    c.stroke();
+};
+
+VectorRenderer.prototype.drawWire = function (player, wire) {
+    this.drawWireType[wire.type.name](wire, 120 + wire.row * 40, player.color);
+
+    // Draw nodes on all the starting rows that have them.
+    wire.type.startRows.forEach(function (startRow) {
+        if (wire.nodes[startRow]) {
+            this.drawNode(60, 120 + (wire.row + startRow) * 40, player.color);
+        }
+    }, this);
+};
+
+VectorRenderer.prototype.drawWireType = {
+    straight: function (wire, y, color) {
+        c.strokeStyle = wire.nodes[0] ? color : '#000';
+        c.beginPath();
+        c.moveTo(40, y);
+        c.lineTo(360, y);
+        c.stroke();
+    },
+    zigzag: function (wire, y, color) {
+        c.strokeStyle = wire.nodes[0] ? color : '#000';
+        c.beginPath();
+        c.moveTo(40, y);
+        c.lineTo(200, y);
+        c.lineTo(200, y + 40);
+        c.lineTo(360, y + 40);
+        c.stroke();
+    },
+    fork: function (wire, y, color) {
+        c.strokeStyle = wire.nodes[1] ? color : '#000';
+        c.beginPath();
+        c.moveTo(40, y + 40);
+        c.lineTo(200, y + 40);
+        c.lineTo(200, y);
+        c.lineTo(360, y);
+        c.moveTo(200, y + 40);
+        c.lineTo(200, y + 80);
+        c.lineTo(360, y + 80);
+        c.stroke();
+    },
+    fork2: function (wire, y, color) {
+        c.strokeStyle = wire.nodes[0] ? color : '#000';
+        c.beginPath();
+        c.moveTo(40, y);
+        c.lineTo(200, y);
+        c.lineTo(200, y + 40);
+        c.stroke();
+
+        c.strokeStyle = wire.nodes[2] ? color : '#000';
+        c.beginPath();
+        c.moveTo(40, y + 80);
+        c.lineTo(200, y + 80);
+        c.lineTo(200, y + 40);
+        c.stroke();
+
+        c.strokeStyle = wire.nodes[0] && wire.nodes[2] ? color : '#000';
+        c.beginPath();
+        c.moveTo(200, y + 40);
+        c.lineTo(360, y + 40);
+        c.stroke();
+    }
+};
+
+VectorRenderer.prototype.onClick = function (x, y) {
+    var row = Math.floor((y - 100) / 40);
+    if (row < 0 || row >= 12) {
+        return;
+    }
+
+    if (x >= 40 && x <= 360) {
+        this.game.players[0].onRowSelect(row);
+    }
+    else if (x >= 440 && x <= 760) {
+        this.game.players[1].onRowSelect(row);
     }
 };
 
@@ -314,10 +482,18 @@ Renderer.prototype.drawWireType = {
 // Start game loop
 
 var game = new Game();
-var renderer = new Renderer(game, scale);
+var renderer = new PixelRenderer(game, scale);
+// var renderer = new VectorRenderer(game, scale);
 
 function drawFrame(ts) {
     renderer.drawFrame(ts);
     window.requestAnimationFrame(drawFrame);
 }
 window.requestAnimationFrame(drawFrame);
+
+
+// Event handlers
+
+canvas.addEventListener('click', function (e) {
+    renderer.onClick(Math.floor(e.offsetX / scale), Math.floor(e.offsetY / scale));
+}, false);
