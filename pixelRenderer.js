@@ -13,7 +13,8 @@ var Renderer = function (game, canvas) {
     this.c.lineCap = 'square';
     this.c.lineJoin = 'miter';
 
-    this.background = '#666';
+    this.backgroundColor = '#666';
+    this.timerColor = '#fff';
 
     this.ready = false;
     this.frame = new Image();
@@ -31,13 +32,16 @@ Renderer.prototype.drawFrame = function (ts) {
     }
 
     // Fill canvas with background.
-    this.c.fillStyle = this.background;
+    this.c.fillStyle = this.backgroundColor;
     this.c.fillRect(0, 0, 64, 64);
 
     // Draw frame image.
     this.c.imageSmoothingEnabled = false;
     this.c.mozImageSmoothingEnabled = false;
     this.c.drawImage(this.frame, 0, 0);
+
+    // Draw timer.
+    this.drawTimer(ts);
 
     // Draw lights.
     this.drawTopLight();
@@ -47,24 +51,27 @@ Renderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
+Renderer.prototype.drawTimer = function (ts) {
+    var timerLength;
+    if (this.game.stage === 'warmup' || this.game.stage === 'game') {
+        // Fill a percentage of the timer bar.
+        timerLength = 32 * this.game.timer;
+        this.c.fillStyle = this.timerColor;
+    }
+    else if (this.game.stage === 'gameover') {
+        // Fill the timer bar with the color of the winning player.
+        timerLength = 32;
+        this.c.fillStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
+    }
+
+    if (timerLength > 0) {
+        this.c.fillRect(32 - timerLength, 0, timerLength * 2, 1);
+        this.c.fillRect(32 - timerLength, 63, timerLength * 2, 1);
+    }
+};
+
 Renderer.prototype.drawTopLight = function () {
-    var counts = [0, 0];
-    this.game.rowLights.forEach(function (side) {
-        if (side !== null) {
-            counts[side] += 1;
-        }
-    });
-
-    if (counts[0] > counts[1]) {
-        this.c.fillStyle = this.game.players[0].color;
-    }
-    else if (counts[0] < counts[1]) {
-        this.c.fillStyle = this.game.players[1].color;
-    }
-    else {
-        this.c.fillStyle = '#000';
-    }
-
+    this.c.fillStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
     this.c.fillRect(28, 4, 8, 8);
 };
 

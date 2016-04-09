@@ -13,7 +13,11 @@ window.requestAnimationFrame(drawFrame);
 canvas.focus();
 
 canvas.addEventListener('keypress', function (e) {
-    if (e.charCode === 97) {
+    if (game.stage === 'done' || e.keyCode === 27) {
+        // Reset game
+        game = new Game(Renderer, canvas);
+    }
+    else if (e.charCode === 97) {
         // 1 left
     }
     else if (e.charCode === 119) {

@@ -2,15 +2,20 @@
 
 var Game = function (renderer, canvas) {
     this.renderer = new renderer(this, canvas);
-    this.ts = 0;
+
+    this.new = true;
+
+    this.warmupLength = 1500;
+    this.gameLength = 10000;
+    this.gameoverLength = 1500;
 
     this.players = [
-        new Player({
+        new Player(this, {
             side: 0,
             color: '#fbfb00',
-            nodes: 3
+            nodes: 5
         }),
-        new Player({
+        new Player(this, {
             side: 1,
             color: '#e600e6',
             nodes: 5
@@ -18,11 +23,37 @@ var Game = function (renderer, canvas) {
     ];
 
     this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+    this.topLight = null;
 };
 
 Game.prototype.drawFrame = function (ts) {
+    if (this.new) {
+        this.new = false;
+        this.startTs = ts;
+    }
+    ts -= this.startTs;
     var delta = ts - this.ts;
     this.ts = ts;
+
+    // Set game stage and calculate timer.
+    if (this.ts < this.warmupLength) {
+        this.stage = 'warmup';
+        this.timer = this.ts / this.warmupLength;
+    }
+    else if (this.ts < this.warmupLength + this.gameLength) {
+        this.stage = 'game';
+        this.timer = Math.max(this.warmupLength + this.gameLength - this.ts, 0) / this.gameLength;
+    }
+    else if (this.ts < this.warmupLength + this.gameLength + this.gameoverLength) {
+        this.stage = 'gameover';
+        this.timer = 0;
+        this.players.forEach(function (player) {
+            player.currentRow = -1;
+        });
+    }
+    else {
+        this.stage = 'done';
+    }
 
     // Check for expired nodes.
     this.players.forEach(function (player) {
@@ -33,6 +64,7 @@ Game.prototype.drawFrame = function (ts) {
     for (var row = 0; row < this.rowLights.length; row++) {
         this.updateRowLight(row);
     }
+    this.updateTopLight();
 
     this.renderer.drawFrame(ts);
 };
@@ -61,10 +93,30 @@ Game.prototype.updateRowLight = function (row) {
     }
 };
 
+Game.prototype.updateTopLight = function () {
+    var counts = [0, 0];
+    this.rowLights.forEach(function (side) {
+        if (side !== null) {
+            counts[side] += 1;
+        }
+    });
+
+    if (counts[0] > counts[1]) {
+        this.topLight = 0;
+    }
+    else if (counts[0] < counts[1]) {
+        this.topLight = 1;
+    }
+    else {
+        this.topLight = null;
+    }
+};
+
 
 // Player object
 
-var Player = function (opts) {
+var Player = function (game, opts) {
+    this.game = game;
     this.color = opts.color;
     this.nodes = opts.nodes;
     this.side = opts.side;
@@ -109,6 +161,11 @@ Player.prototype.checkNodes = function (delta) {
 };
 
 Player.prototype.onMove = function (dir) {
+    // Abort if we are not in game stage.
+    if (this.game.stage !== 'game') {
+        return;
+    }
+
     // Subtract a node, or abort if the player has none left.
     if (this.currentRow === -1) {
         if (!this.nodes) {
@@ -134,6 +191,11 @@ Player.prototype.onMove = function (dir) {
 };
 
 Player.prototype.onRowSelect = function () {
+    // Abort if we are not in game stage.
+    if (this.game.stage !== 'game') {
+        return;
+    }
+
     // Abort if player does not have a row selected.
     if (this.currentRow === -1) {
         return;

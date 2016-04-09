@@ -13,13 +13,17 @@ var Renderer = function (game, canvas) {
     this.c.lineCap = 'square';
     this.c.lineJoin = 'bevel';
 
-    this.background = '#666';
+    this.backgroundColor = '#666';
+    this.timerColor = '#fff';
 };
 
 Renderer.prototype.drawFrame = function (ts) {
     // Fill canvas with background.
-    this.c.fillStyle = this.background;
+    this.c.fillStyle = this.backgroundColor;
     this.c.fillRect(0, 0, 800, 600);
+
+    // Draw timer.
+    this.drawTimer();
 
     // Draw lights.
     this.drawTopLight();
@@ -29,23 +33,34 @@ Renderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-Renderer.prototype.drawTopLight = function () {
-    var counts = [0, 0];
-    this.game.rowLights.forEach(function (side) {
-        if (side !== null) {
-            counts[side] += 1;
-        }
-    });
+Renderer.prototype.drawTimer = function (ts) {
+    var timerLength;
+    if (this.game.stage === 'warmup' || this.game.stage === 'game') {
+        // Fill a percentage of the timer bar.
+        timerLength = 320 * this.game.timer;
+        this.c.strokeStyle = this.timerColor;
+    }
+    else if (this.game.stage === 'gameover') {
+        // Fill the timer bar with the color of the winning player.
+        timerLength = 320;
+        this.c.strokeStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
+    }
 
-    if (counts[0] > counts[1]) {
-        this.c.fillStyle = this.game.players[0].color;
+    if (timerLength > 0) {
+        this.c.beginPath();
+        this.c.moveTo(360, 40);
+        this.c.lineTo(360 - timerLength, 40);
+        this.c.stroke();
+
+        this.c.beginPath();
+        this.c.moveTo(440, 40);
+        this.c.lineTo(440 + timerLength, 40);
+        this.c.stroke();
     }
-    else if (counts[0] < counts[1]) {
-        this.c.fillStyle = this.game.players[1].color;
-    }
-    else {
-        this.c.fillStyle = '#000';
-    }
+};
+
+Renderer.prototype.drawTopLight = function () {
+    this.c.fillStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
     this.c.strokeStyle = '#000';
     this.c.fillRect(360, 20, 80, 80);
     this.c.strokeRect(360, 20, 80, 80);
@@ -71,9 +86,9 @@ Renderer.prototype.drawPlayerSide = function (player) {
 
     // Draw node area.
     this.c.fillStyle = '#666';
-    this.c.fillRect(50, 40, 300, 40);
+    this.c.fillRect(50, 60, 300, 40);
     for (var i = 0; i < player.nodes; i++) {
-        this.drawNode(55 + i * 30, 60, player.color);
+        this.drawNode(55 + i * 30, 80, player.color);
     }
 
     // Draw wires.
