@@ -31,13 +31,14 @@ var Player = function (game, opts) {
     this.side = opts.side;
     this.wires = [];
     this.wireAtRow = [];
+    this.currentRow = -1;
 
     var row = 0;
     while (row < 12) {
         var wireType = Player.wireTypes[Math.floor(Math.random() * Player.wireTypes.length)];
         if (row + wireType.rows <= 12) {
             var wire = {
-                row: row,
+                topRow: row,
                 type: wireType,
                 nodes: Array(wireType.rows)
             };
@@ -45,29 +46,28 @@ var Player = function (game, opts) {
             this.wires.push(wire);
 
             for (var i = 0; i < wireType.rows; i++) {
-                this.wireAtRow.push(this.wires.length - 1);
+                this.wireAtRow.push(wire);
             }
             row += wireType.rows;
         }
     }
 };
 
-Player.prototype.onRowSelect = function (row) {
-    // Abort if player is out of nodes.
-    if (!this.nodes) {
+Player.prototype.onRowSelect = function () {
+    // Abort if player does not have a row selected.
+    if (this.currentRow === -1) {
         return;
     }
 
-    var wire = this.wires[this.wireAtRow[row]];
-    var wireRow = row - wire.row;
+    var wire = this.wireAtRow[this.currentRow];
+    var wireRow = this.currentRow - wire.topRow;
 
-    // Abort if there's already a node on this row or this isn't a starting row.
-    if (wire.nodes[wireRow] || wire.type.startRows.indexOf(wireRow) === -1) {
+    // Place a node on the row, or abort if there's already a node on the row.
+    if (wire.nodes[wireRow]) {
         return;
     }
-
     wire.nodes[wireRow] = true;
-    this.nodes -= 1;
+    this.currentRow = -1;
 
     // If there are nodes on all start rows, update the light at each end row.
     // Works for now, but not necessarily the case for future wire types.
@@ -75,10 +75,38 @@ Player.prototype.onRowSelect = function (row) {
         return wire.nodes[startRow];
     })) {
         wire.type.endRows.forEach(function (endRow) {
-            this.game.setRowLight(wire.row + endRow, this);
+            this.game.setRowLight(wire.topRow + endRow, this);
         }, this);
     }
 };
+
+Player.prototype.onMove = function (dir) {
+    // Subtract a node, or abort if the player has none left.
+    if (this.currentRow === -1) {
+        if (!this.nodes) {
+            return;
+        }
+        this.nodes -= 1;
+    }
+
+    do {
+        // Move the current row up or down.
+        if (dir === 3) {
+            this.currentRow = (this.currentRow + 1) % 12;
+        }
+        else if (dir === 1) {
+            this.currentRow = (Math.max(this.currentRow, 0) + 11) % 12;
+        }
+
+        // Check if there is a wire starting at this row; if not, keep moving.
+        var wire = this.wireAtRow[this.currentRow];
+        var wireRow = this.currentRow - wire.topRow;
+    }
+    while (wire.type.startRows.indexOf(wireRow) === -1);
+};
+
+
+// Wire types
 
 Player.wireTypes = [
     {

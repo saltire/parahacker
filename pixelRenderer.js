@@ -89,7 +89,13 @@ PixelRenderer.prototype.drawPlayerSide = function (player) {
         this.drawNode(7.5 + i * 4, 6.5, player.color);
     }
 
+    // Draw wires.
     player.wires.forEach(this.drawWire.bind(this, player));
+
+    // Draw current node.
+    if (player.currentRow > -1) {
+        this.drawNode(7.5, 14.5 + (player.currentRow) * 4, player.color);
+    }
 };
 
 PixelRenderer.prototype.drawNode = function (x, y, color) {
@@ -108,12 +114,12 @@ PixelRenderer.prototype.drawNode = function (x, y, color) {
 };
 
 PixelRenderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name].call(this, wire, 14.5 + wire.row * 4, player.color);
+    this.drawWireType[wire.type.name].call(this, wire, 14.5 + wire.topRow * 4, player.color);
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
         if (wire.nodes[startRow]) {
-            this.drawNode(7, 14.5 + (wire.row + startRow) * 4, player.color);
+            this.drawNode(10.5, 14.5 + (wire.topRow + startRow) * 4, player.color);
         }
     }, this);
 };

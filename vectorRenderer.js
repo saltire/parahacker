@@ -77,7 +77,13 @@ VectorRenderer.prototype.drawPlayerSide = function (player) {
         this.drawNode(55 + i * 30, 60, player.color);
     }
 
+    // Draw wires.
     player.wires.forEach(this.drawWire.bind(this, player));
+
+    // Draw current node.
+    if (player.currentRow > -1) {
+        this.drawNode(55, 120 + (player.currentRow) * 40, player.color);
+    }
 };
 
 VectorRenderer.prototype.drawNode = function (x, y, color) {
@@ -96,12 +102,12 @@ VectorRenderer.prototype.drawNode = function (x, y, color) {
 };
 
 VectorRenderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name].call(this, wire, 120 + wire.row * 40, player.color);
+    this.drawWireType[wire.type.name].call(this, wire, 120 + wire.topRow * 40, player.color);
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
         if (wire.nodes[startRow]) {
-            this.drawNode(60, 120 + (wire.row + startRow) * 40, player.color);
+            this.drawNode(75, 120 + (wire.topRow + startRow) * 40, player.color);
         }
     }, this);
 };
