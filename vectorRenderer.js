@@ -54,7 +54,7 @@ Renderer.prototype.drawTopLight = function () {
 Renderer.prototype.drawRowLight = function (side, row) {
     var t = 100 + row * 40;
 
-    this.c.fillStyle = side !== null ? this.game.players[side].color : this.background;
+    this.c.fillStyle = this.game.players[side].color;
     this.c.strokeStyle = '#000';
     this.c.fillRect(360, t, 80, 40);
     this.c.strokeRect(360, t, 80, 40);

@@ -70,7 +70,7 @@ Renderer.prototype.drawTopLight = function () {
 
 Renderer.prototype.drawRowLight = function (side, row) {
     var t = 13 + row * 4;
-    this.c.fillStyle = side !== null ? this.game.players[side].color : this.background;
+    this.c.fillStyle = this.game.players[side].color;
     this.c.fillRect(28, t, 8, 3);
 };
 

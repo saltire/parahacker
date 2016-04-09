@@ -20,11 +20,36 @@ var Game = function (renderer, canvas, scale) {
 };
 
 Game.prototype.drawFrame = function (ts) {
+    // Set row light colors.
+    for (var row = 0; row < this.rowLights.length; row++) {
+        this.updateRowLight(row);
+    }
+
     this.renderer.drawFrame(ts);
 };
 
-Game.prototype.setRowLight = function (row, player) {
-    this.rowLights[row] = player.side;
+Game.prototype.updateRowLight = function (row) {
+    // Find out we have input from the wires on each side of this light.
+    var input = this.players.map(function (player) {
+        var wire = player.wireAtRow[row];
+        var wireRow = row - wire.topRow;
+
+        return wire.type.endRows.indexOf(wireRow) > -1 && wire.type.startRows.every(function (startRow) {
+            return wire.nodes[startRow];
+        });
+    });
+
+    // If there are inputs on both sides, flip the color to create a flicker.
+    // Otherwise, set the light's color to the input side.
+    if (input[0] && input[1]) {
+        this.rowLights[row] = 1 - this.rowLights[row];
+    }
+    else if (input[0]) {
+        this.rowLights[row] = 0;
+    }
+    else if (input[1]) {
+        this.rowLights[row] = 1;
+    }
 };
 
 
@@ -74,16 +99,6 @@ Player.prototype.onRowSelect = function () {
     }
     wire.nodes[wireRow] = true;
     this.currentRow = -1;
-
-    // If there are nodes on all start rows, update the light at each end row.
-    // Works for now, but not necessarily the case for future wire types.
-    if (wire.type.startRows.every(function (startRow) {
-        return wire.nodes[startRow];
-    })) {
-        wire.type.endRows.forEach(function (endRow) {
-            this.game.setRowLight(wire.topRow + endRow, this);
-        }, this);
-    }
 };
 
 Player.prototype.onMove = function (dir) {
