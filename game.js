@@ -1,15 +1,16 @@
 // Game object
 
-var Game = function (renderer, canvas, scale) {
-    this.renderer = new renderer(this, canvas, scale);
+var Game = function (renderer, canvas) {
+    this.renderer = new renderer(this, canvas);
+    this.ts = 0;
 
     this.players = [
-        new Player(this, {
+        new Player({
             side: 0,
             color: '#fbfb00',
             nodes: 3
         }),
-        new Player(this, {
+        new Player({
             side: 1,
             color: '#e600e6',
             nodes: 5
@@ -20,6 +21,14 @@ var Game = function (renderer, canvas, scale) {
 };
 
 Game.prototype.drawFrame = function (ts) {
+    var delta = ts - this.ts;
+    this.ts = ts;
+
+    // Check for expired nodes.
+    this.players.forEach(function (player) {
+        player.checkNodes(delta);
+    }, this);
+
     // Set row light colors.
     for (var row = 0; row < this.rowLights.length; row++) {
         this.updateRowLight(row);
@@ -55,14 +64,15 @@ Game.prototype.updateRowLight = function (row) {
 
 // Player object
 
-var Player = function (game, opts) {
-    this.game = game;
+var Player = function (opts) {
     this.color = opts.color;
     this.nodes = opts.nodes;
     this.side = opts.side;
     this.wires = [];
     this.wireAtRow = [];
     this.currentRow = -1;
+
+    this.nodeLifetime = 4000;
 
     var row = 0;
     while (row < 12) {
@@ -84,21 +94,18 @@ var Player = function (game, opts) {
     }
 };
 
-Player.prototype.onRowSelect = function () {
-    // Abort if player does not have a row selected.
-    if (this.currentRow === -1) {
-        return;
-    }
-
-    var wire = this.wireAtRow[this.currentRow];
-    var wireRow = this.currentRow - wire.topRow;
-
-    // Place a node on the row, or abort if there's already a node on the row.
-    if (wire.nodes[wireRow]) {
-        return;
-    }
-    wire.nodes[wireRow] = true;
-    this.currentRow = -1;
+Player.prototype.checkNodes = function (delta) {
+    this.wires.forEach(function (wire) {
+        wire.nodes.forEach(function (node, i) {
+            if (node) {
+                // Subtract elapsed time from the node lifetime, and remove the node if expired.
+                wire.nodes[i] -= delta;
+                if (node <= 0) {
+                    wire.nodes[i] = null;
+                }
+            }
+        }, this);
+    }, this);
 };
 
 Player.prototype.onMove = function (dir) {
@@ -124,6 +131,23 @@ Player.prototype.onMove = function (dir) {
         var wireRow = this.currentRow - wire.topRow;
     }
     while (wire.type.startRows.indexOf(wireRow) === -1);
+};
+
+Player.prototype.onRowSelect = function () {
+    // Abort if player does not have a row selected.
+    if (this.currentRow === -1) {
+        return;
+    }
+
+    var wire = this.wireAtRow[this.currentRow];
+    var wireRow = this.currentRow - wire.topRow;
+
+    // Place a node on the row, or abort if there's already a node on the row.
+    if (wire.nodes[wireRow]) {
+        return;
+    }
+    wire.nodes[wireRow] = this.nodeLifetime;
+    this.currentRow = -1;
 };
 
 
