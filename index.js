@@ -1,14 +1,8 @@
 var canvas = document.getElementById('game');
-var scale = 1;
-
-
-// Start game loop
-
-var game = new Game();
-var renderer = new VectorRenderer(game, canvas, scale);
+var game = new Game(Renderer, canvas);
 
 function drawFrame(ts) {
-    renderer.drawFrame(ts);
+    game.drawFrame(ts);
     window.requestAnimationFrame(drawFrame);
 }
 window.requestAnimationFrame(drawFrame);

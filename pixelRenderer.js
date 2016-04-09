@@ -1,14 +1,13 @@
-var PixelRenderer = function (game, canvas, scale) {
+var Renderer = function (game, canvas) {
     this.game = game;
 
     this.canvas = canvas;
 
-    this.scale = scale || 1;
-    this.canvas.width = 64 * this.scale;
-    this.canvas.height = 64 * this.scale;
+    this.hscale = this.canvas.width / 64;
+    this.vscale = this.canvas.height / 64;
 
     this.c = canvas.getContext('2d');
-    this.c.scale(this.scale, this.scale);
+    this.c.scale(this.hscale, this.vscale);
 
     this.c.lineWidth = 1;
     this.c.lineCap = 'square';
@@ -22,18 +21,18 @@ var PixelRenderer = function (game, canvas, scale) {
     this.frame.onload = this.imageLoaded.bind(this);
 };
 
-PixelRenderer.prototype.imageLoaded = function () {
+Renderer.prototype.imageLoaded = function () {
     this.ready = true;
 };
 
-PixelRenderer.prototype.drawFrame = function (ts) {
+Renderer.prototype.drawFrame = function (ts) {
     if (!this.ready) {
         return;
     }
 
     // Fill canvas with background.
     this.c.fillStyle = this.background;
-    this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.c.fillRect(0, 0, 64, 64);
 
     // Draw frame image.
     this.c.imageSmoothingEnabled = false;
@@ -48,7 +47,7 @@ PixelRenderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-PixelRenderer.prototype.drawTopLight = function () {
+Renderer.prototype.drawTopLight = function () {
     var counts = [0, 0];
     this.game.rowLights.forEach(function (side) {
         if (side !== null) {
@@ -69,14 +68,14 @@ PixelRenderer.prototype.drawTopLight = function () {
     this.c.fillRect(28, 4, 8, 8);
 };
 
-PixelRenderer.prototype.drawRowLight = function (side, row) {
+Renderer.prototype.drawRowLight = function (side, row) {
     var t = 13 + row * 4;
     this.c.fillStyle = side !== null ? this.game.players[side].color : this.background;
     this.c.fillRect(28, t, 8, 3);
 };
 
-PixelRenderer.prototype.drawPlayerSide = function (player) {
-    this.c.setTransform((player.side ? -1 : 1) * this.scale, 0, 0, this.scale, player.side ? this.canvas.width : 0, 0);
+Renderer.prototype.drawPlayerSide = function (player) {
+    this.c.setTransform((player.side ? -1 : 1) * this.hscale, 0, 0, this.vscale, player.side ? this.canvas.width : 0, 0);
 
     // Draw side bar.
     this.c.fillStyle = player.color;
@@ -98,7 +97,7 @@ PixelRenderer.prototype.drawPlayerSide = function (player) {
     }
 };
 
-PixelRenderer.prototype.drawNode = function (x, y, color) {
+Renderer.prototype.drawNode = function (x, y, color) {
     this.c.fillStyle = color;
     this.c.strokeStyle = '#000';
     this.c.beginPath();
@@ -113,7 +112,7 @@ PixelRenderer.prototype.drawNode = function (x, y, color) {
     this.c.stroke();
 };
 
-PixelRenderer.prototype.drawWire = function (player, wire) {
+Renderer.prototype.drawWire = function (player, wire) {
     this.drawWireType[wire.type.name].call(this, wire, 14.5 + wire.topRow * 4, player.color);
 
     // Draw nodes on all the starting rows that have them.
@@ -124,7 +123,7 @@ PixelRenderer.prototype.drawWire = function (player, wire) {
     }, this);
 };
 
-PixelRenderer.prototype.drawWireType = {
+Renderer.prototype.drawWireType = {
     straight: function (wire, y, color) {
         this.c.strokeStyle = wire.nodes[0] ? color : '#000';
         this.c.beginPath();
@@ -176,7 +175,7 @@ PixelRenderer.prototype.drawWireType = {
     }
 };
 
-PixelRenderer.prototype.onClick = function (x, y) {
+Renderer.prototype.onClick = function (x, y) {
     var row = Math.floor((y - 13) / 4);
     if (row < 0 || row >= 12) {
         return;

@@ -1,6 +1,8 @@
 // Game object
 
-var Game = function () {
+var Game = function (renderer, canvas, scale) {
+    this.renderer = new renderer(this, canvas, scale);
+
     this.players = [
         new Player(this, {
             side: 0,
@@ -15,6 +17,10 @@ var Game = function () {
     ];
 
     this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
+};
+
+Game.prototype.drawFrame = function (ts) {
+    this.renderer.drawFrame(ts);
 };
 
 Game.prototype.setRowLight = function (row, player) {

@@ -1,14 +1,13 @@
-var VectorRenderer = function (game, canvas, scale) {
+var Renderer = function (game, canvas) {
     this.game = game;
 
     this.canvas = canvas;
 
-    this.scale = scale || 1;
-    this.canvas.width = 800 * this.scale;
-    this.canvas.height = 600 * this.scale;
+    this.hscale = this.canvas.width / 800;
+    this.vscale = this.canvas.height / 600;
 
     this.c = canvas.getContext('2d');
-    this.c.scale(this.scale, this.scale);
+    this.c.scale(this.hscale, this.vscale);
 
     this.c.lineWidth = 4;
     this.c.lineCap = 'square';
@@ -17,10 +16,10 @@ var VectorRenderer = function (game, canvas, scale) {
     this.background = '#666';
 };
 
-VectorRenderer.prototype.drawFrame = function (ts) {
+Renderer.prototype.drawFrame = function (ts) {
     // Fill canvas with background.
     this.c.fillStyle = this.background;
-    this.c.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.c.fillRect(0, 0, 800, 600);
 
     // Draw lights.
     this.drawTopLight();
@@ -30,7 +29,7 @@ VectorRenderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-VectorRenderer.prototype.drawTopLight = function () {
+Renderer.prototype.drawTopLight = function () {
     var counts = [0, 0];
     this.game.rowLights.forEach(function (side) {
         if (side !== null) {
@@ -52,7 +51,7 @@ VectorRenderer.prototype.drawTopLight = function () {
     this.c.strokeRect(360, 20, 80, 80);
 };
 
-VectorRenderer.prototype.drawRowLight = function (side, row) {
+Renderer.prototype.drawRowLight = function (side, row) {
     var t = 100 + row * 40;
 
     this.c.fillStyle = side !== null ? this.game.players[side].color : this.background;
@@ -61,8 +60,8 @@ VectorRenderer.prototype.drawRowLight = function (side, row) {
     this.c.strokeRect(360, t, 80, 40);
 };
 
-VectorRenderer.prototype.drawPlayerSide = function (player) {
-    this.c.setTransform((player.side ? -1 : 1) * this.scale, 0, 0, this.scale, player.side ? this.canvas.width : 0, 0);
+Renderer.prototype.drawPlayerSide = function (player) {
+    this.c.setTransform((player.side ? -1 : 1) * this.hscale, 0, 0, this.vscale, player.side ? this.canvas.width : 0, 0);
 
     // Draw side bar.
     this.c.fillStyle = player.color;
@@ -86,7 +85,7 @@ VectorRenderer.prototype.drawPlayerSide = function (player) {
     }
 };
 
-VectorRenderer.prototype.drawNode = function (x, y, color) {
+Renderer.prototype.drawNode = function (x, y, color) {
     this.c.fillStyle = color;
     this.c.strokeStyle = '#000';
     this.c.beginPath();
@@ -101,7 +100,7 @@ VectorRenderer.prototype.drawNode = function (x, y, color) {
     this.c.stroke();
 };
 
-VectorRenderer.prototype.drawWire = function (player, wire) {
+Renderer.prototype.drawWire = function (player, wire) {
     this.drawWireType[wire.type.name].call(this, wire, 120 + wire.topRow * 40, player.color);
 
     // Draw nodes on all the starting rows that have them.
@@ -112,7 +111,7 @@ VectorRenderer.prototype.drawWire = function (player, wire) {
     }, this);
 };
 
-VectorRenderer.prototype.drawWireType = {
+Renderer.prototype.drawWireType = {
     straight: function (wire, y, color) {
         this.c.strokeStyle = wire.nodes[0] ? color : '#000';
         this.c.beginPath();
@@ -164,7 +163,7 @@ VectorRenderer.prototype.drawWireType = {
     }
 };
 
-VectorRenderer.prototype.onClick = function (x, y) {
+Renderer.prototype.onClick = function (x, y) {
     var row = Math.floor((y - 100) / 40);
     if (row < 0 || row >= 12) {
         return;
