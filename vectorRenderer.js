@@ -143,6 +143,15 @@ Renderer.prototype.drawWireType = {
         this.c.lineTo(360, y + 40);
         this.c.stroke();
     },
+    zigzag2: function (wire, y, color) {
+        this.c.strokeStyle = wire.nodes[1] ? color : '#000';
+        this.c.beginPath();
+        this.c.moveTo(40, y + 40);
+        this.c.lineTo(200, y + 40);
+        this.c.lineTo(200, y);
+        this.c.lineTo(360, y);
+        this.c.stroke();
+    },
     fork: function (wire, y, color) {
         this.c.strokeStyle = wire.nodes[1] ? color : '#000';
         this.c.beginPath();

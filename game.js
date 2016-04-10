@@ -229,6 +229,12 @@ Player.wireTypes = [
         endRows: [1]
     },
     {
+        name: 'zigzag2',
+        rows: 2,
+        startRows: [1],
+        endRows: [0]
+    },
+    {
         name: 'fork',
         rows: 3,
         startRows: [1],
