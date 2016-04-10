@@ -17,7 +17,7 @@ var Renderer = function (game, canvas) {
     this.timerColor = '#fff';
 };
 
-Renderer.prototype.drawFrame = function (ts) {
+Renderer.prototype.drawFrame = function () {
     // Fill canvas with background.
     this.c.fillStyle = this.backgroundColor;
     this.c.fillRect(0, 0, 800, 600);
@@ -33,7 +33,7 @@ Renderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-Renderer.prototype.drawTimer = function (ts) {
+Renderer.prototype.drawTimer = function () {
     var timerLength;
     if (this.game.stage === 'warmup' || this.game.stage === 'game') {
         // Fill a percentage of the timer bar.

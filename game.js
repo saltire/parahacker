@@ -66,7 +66,7 @@ Game.prototype.drawFrame = function (ts) {
     }
     this.updateTopLight();
 
-    this.renderer.drawFrame(ts);
+    this.renderer.drawFrame();
 };
 
 Game.prototype.updateRowLight = function (row) {

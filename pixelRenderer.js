@@ -51,7 +51,7 @@ Renderer.prototype.spriteLoaded = function () {
     }, this);
 };
 
-Renderer.prototype.drawFrame = function (ts) {
+Renderer.prototype.drawFrame = function () {
     if (!this.playerSprites) {
         return;
     }
@@ -61,7 +61,7 @@ Renderer.prototype.drawFrame = function (ts) {
     this.c.fillRect(0, 0, 64, 64);
 
     // Draw timer.
-    this.drawTimer(ts);
+    this.drawTimer();
 
     // Draw lights.
     this.drawTopLight();
@@ -71,7 +71,7 @@ Renderer.prototype.drawFrame = function (ts) {
     this.game.players.forEach(this.drawPlayerSide.bind(this));
 };
 
-Renderer.prototype.drawTimer = function (ts) {
+Renderer.prototype.drawTimer = function () {
     // Draw timer background.
     this.c.fillStyle = '#000';
     this.c.fillRect(0, 0, 64, 1);
@@ -133,7 +133,7 @@ Renderer.prototype.drawNode = function (x, y, side) {
 };
 
 Renderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name].call(this, wire, 14 + wire.topRow * 4, player.side);
+    this.drawWireType[wire.type.name].call(this, wire, 14 + wire.topRow * 4, player.side, this.getFrameOffset(250, 5));
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
@@ -144,45 +144,51 @@ Renderer.prototype.drawWire = function (player, wire) {
 };
 
 Renderer.prototype.drawWireType = {
-    straight: function (wire, y, side) {
+    straight: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
-        this.drawWireSegment(5, y, 23, 0, 2, s);
+        this.drawWireSegment(5, y, 23, offset, 2, s);
     },
-    zigzag: function (wire, y, side) {
+    zigzag: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
-        this.drawWireSegment(5, y, 11, 0, 2, s);
-        this.drawWireSegment(16, y, 4, 1, 3, s);
-        this.drawWireSegment(16, y + 4, 12, 0, 2, s);
+        this.drawWireSegment(5, y, 11, offset, 2, s);
+        this.drawWireSegment(16, y, 4, offset + 4, 3, s);
+        this.drawWireSegment(16, y + 4, 12, offset, 2, s);
     },
-    zigzag2: function (wire, y, side) {
+    zigzag2: function (wire, y, side, offset) {
         var s = wire.nodes[1] ? side : null;
-        this.drawWireSegment(5, y + 4, 11, 0, 2, s);
-        this.drawWireSegment(16, y + 4, 4, 1, 1, s);
-        this.drawWireSegment(16, y, 12, 0, 2, s);
+        this.drawWireSegment(5, y + 4, 11, offset, 2, s);
+        this.drawWireSegment(16, y + 4, 4, offset + 4, 1, s);
+        this.drawWireSegment(16, y, 12, offset, 2, s);
     },
-    fork: function (wire, y, side) {
+    fork: function (wire, y, side, offset) {
         var s = wire.nodes[1] ? side : null;
-        this.drawWireSegment(5, y + 4, 11, 0, 2, s);
-        this.drawWireSegment(16, y + 4, 4, 1, 1, s);
-        this.drawWireSegment(16, y, 12, 0, 2, s);
-        this.drawWireSegment(16, y + 4, 4, 1, 3, s);
-        this.drawWireSegment(16, y + 8, 12, 0, 2, s);
+        this.drawWireSegment(5, y + 4, 11, offset, 2, s);
+        this.drawWireSegment(16, y + 4, 4, offset + 4, 1, s);
+        this.drawWireSegment(16, y, 12, offset, 2, s);
+        this.drawWireSegment(16, y + 4, 4, offset + 4, 3, s);
+        this.drawWireSegment(16, y + 8, 12, offset, 2, s);
     },
-    fork2: function (wire, y, side) {
+    fork2: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
-        this.drawWireSegment(5, y, 11, 0, 2, s);
-        this.drawWireSegment(16, y, 4, 1, 3, s);
+        this.drawWireSegment(5, y, 11, offset, 2, s);
+        this.drawWireSegment(16, y, 4, offset + 4, 3, s);
 
         s = wire.nodes[2] ? side : null;
-        this.drawWireSegment(5, y + 8, 11, 0, 2, s);
-        this.drawWireSegment(16, y + 8, 4, 1, 1, s);
+        this.drawWireSegment(5, y + 8, 11, offset, 2, s);
+        this.drawWireSegment(16, y + 8, 4, offset + 4, 1, s);
 
         s = wire.nodes[0] && wire.nodes[2] ? side : null;
-        this.drawWireSegment(16, y + 4, 12, 0, 2, s);
+        this.drawWireSegment(16, y + 4, 12, offset, 2, s);
     }
 };
 
+Renderer.prototype.getFrameOffset = function (frameLength, frameCount) {
+    return Math.floor(this.game.ts % (frameLength * frameCount) / frameLength);
+};
+
 Renderer.prototype.drawWireSegment = function (x, y, length, offset, dir, side) {
+    offset %= 5;
+
     if (side === null) {
         this.c.fillStyle = '#000';
         if (dir === 1) { // Up
@@ -197,13 +203,13 @@ Renderer.prototype.drawWireSegment = function (x, y, length, offset, dir, side) 
     }
     else {
         if (dir === 1) { // Up
-            this.c.drawImage(this.playerSprites[side], 17, 36 - length - offset, 1, length, x, y - length + 1, 1, length);
+            this.c.drawImage(this.playerSprites[side], 17, 32 - length + offset, 1, length, x, y - length + 1, 1, length);
         }
         else if (dir === 2) { // Forward
             this.c.drawImage(this.playerSprites[side], 10 - offset, 7, length, 1, x, y, length, 1);
         }
         else if (dir == 3) { // Down
-            this.c.drawImage(this.playerSprites[side], 18, 9 + offset, 1, length, x, y, 1, length);
+            this.c.drawImage(this.playerSprites[side], 19, 13 - offset, 1, length, x, y, 1, length);
         }
     }
 };
