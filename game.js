@@ -1,10 +1,7 @@
 // Game object
 
 var Game = function (renderer, canvas) {
-    this.renderer = new renderer(this, canvas);
-
     this.new = true;
-
     this.warmupLength = 1500;
     this.gameLength = 10000;
     this.gameoverLength = 1500;
@@ -21,9 +18,10 @@ var Game = function (renderer, canvas) {
             nodes: 5
         })
     ];
-
     this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     this.topLight = null;
+
+    this.renderer = new renderer(this, canvas);
 };
 
 Game.prototype.drawFrame = function (ts) {
