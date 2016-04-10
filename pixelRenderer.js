@@ -2,12 +2,17 @@ var Renderer = function (game, canvas) {
     this.game = game;
 
     this.canvas = canvas;
+    this.offscreen = document.createElement('canvas');
+    this.offscreen.width = 600;
+    this.offscreen.height = 600;
 
     this.hscale = this.canvas.width / 64;
     this.vscale = this.canvas.height / 64;
 
     this.c = canvas.getContext('2d');
     this.c.scale(this.hscale, this.vscale);
+    this.c.imageSmoothingEnabled = false;
+    this.c.mozImageSmoothingEnabled = false;
 
     this.c.lineWidth = 1;
     this.c.lineCap = 'square';
@@ -16,29 +21,44 @@ var Renderer = function (game, canvas) {
     this.backgroundColor = '#666';
     this.timerColor = '#fff';
 
-    this.ready = false;
-    this.frame = new Image();
-    this.frame.src = './frame.png';
-    this.frame.onload = this.imageLoaded.bind(this);
+    this.sprite = new Image();
+    this.sprite.src = './sprite.png';
+    this.sprite.onload = this.spriteLoaded.bind(this);
 };
 
-Renderer.prototype.imageLoaded = function () {
-    this.ready = true;
+Renderer.prototype.spriteLoaded = function () {
+    this.playerSprites = this.game.players.map(function (player) {
+        // Create a canvas with the player color, masked to the sprite.
+        var playerMask = document.createElement('canvas');
+        playerMask.width = this.sprite.width;
+        playerMask.height = this.sprite.height;
+        var maskCtx = playerMask.getContext('2d');
+        maskCtx.drawImage(this.sprite, 0, 0);
+        maskCtx.fillStyle = player.color;
+        maskCtx.globalCompositeOperation = 'source-in';
+        maskCtx.fillRect(0, 0, playerMask.width, playerMask.height);
+
+        // Create a sprite canvas for the player and overlay the masked color canvas onto it.
+        var playerSprite = document.createElement('canvas');
+        playerSprite.width = this.sprite.width;
+        playerSprite.height = this.sprite.height;
+        var spriteCtx = playerSprite.getContext('2d');
+        spriteCtx.drawImage(this.sprite, 0, 0);
+        spriteCtx.globalCompositeOperation = 'overlay';
+        spriteCtx.drawImage(playerMask, 0, 0);
+
+        return playerSprite;
+    }, this);
 };
 
 Renderer.prototype.drawFrame = function (ts) {
-    if (!this.ready) {
+    if (!this.playerSprites) {
         return;
     }
 
     // Fill canvas with background.
     this.c.fillStyle = this.backgroundColor;
     this.c.fillRect(0, 0, 64, 64);
-
-    // Draw frame image.
-    this.c.imageSmoothingEnabled = false;
-    this.c.mozImageSmoothingEnabled = false;
-    this.c.drawImage(this.frame, 0, 0);
 
     // Draw timer.
     this.drawTimer(ts);
@@ -52,47 +72,51 @@ Renderer.prototype.drawFrame = function (ts) {
 };
 
 Renderer.prototype.drawTimer = function (ts) {
+    // Draw timer background.
+    this.c.fillStyle = '#000';
+    this.c.fillRect(0, 0, 64, 1);
+    this.c.fillRect(0, 63, 64, 1);
+
     var timerLength;
     if (this.game.stage === 'warmup' || this.game.stage === 'game') {
         // Fill a percentage of the timer bar.
-        timerLength = 32 * this.game.timer;
+        timerLength = Math.round(32 * this.game.timer);
         this.c.fillStyle = this.timerColor;
-    }
-    else if (this.game.stage === 'gameover') {
-        // Fill the timer bar with the color of the winning player.
-        timerLength = 32;
-        this.c.fillStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
-    }
-
-    if (timerLength > 0) {
         this.c.fillRect(32 - timerLength, 0, timerLength * 2, 1);
         this.c.fillRect(32 - timerLength, 63, timerLength * 2, 1);
+    }
+    else if (this.game.stage === 'gameover' && this.game.topLight !== null) {
+        // Fill the timer bar with the color of the winning player.
+        this.c.fillStyle = this.game.players[this.game.topLight].color;
+        this.c.fillRect(0, 0, 64, 1);
+        this.c.fillRect(0, 63, 64, 1);
     }
 };
 
 Renderer.prototype.drawTopLight = function () {
-    this.c.fillStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;
-    this.c.fillRect(28, 4, 8, 8);
+    if (this.game.topLight === null) {
+        this.c.drawImage(this.sprite, 6, 10, 10, 10, 27, 3, 10, 10);
+    }
+    else {
+        this.c.drawImage(this.playerSprites[this.game.topLight], 6, 21, 10, 10, 27, 3, 10, 10);
+    }
 };
 
 Renderer.prototype.drawRowLight = function (side, row) {
-    var t = 13 + row * 4;
-    this.c.fillStyle = this.game.players[side].color;
-    this.c.fillRect(28, t, 8, 3);
+    this.c.drawImage(this.playerSprites[side], 6, 31, 10, 4, 27, 13 + row * 4, 10, 4);
 };
 
 Renderer.prototype.drawPlayerSide = function (player) {
     this.c.setTransform((player.side ? -1 : 1) * this.hscale, 0, 0, this.vscale, player.side ? this.canvas.width : 0, 0);
 
     // Draw side bar.
-    this.c.fillStyle = player.color;
-    this.c.fillRect(3, 4, 2, 56);
+    this.c.drawImage(this.playerSprites[player.side], 1, 1, 4, 58, 2, 3, 4, 58);
 
     // Draw node area.
     this.c.fillStyle = '#666';
     this.c.fillRect(6, 5, 21, 3);
     for (var i = 0; i < player.nodes; i++) {
-        this.drawNode(7.5 + i * 4, 6.5, player.color);
+        this.drawNode(7 + i * 4, 5, player.side);
     }
 
     // Draw wires.
@@ -100,23 +124,12 @@ Renderer.prototype.drawPlayerSide = function (player) {
 
     // Draw current node.
     if (player.currentRow > -1) {
-        this.drawNode(7.5, 14.5 + (player.currentRow) * 4, player.color);
+        this.drawNode(7, 13 + (player.currentRow) * 4, player.side);
     }
 };
 
-Renderer.prototype.drawNode = function (x, y, color) {
-    this.c.fillStyle = color;
-    this.c.strokeStyle = '#000';
-    this.c.beginPath();
-    this.c.moveTo(x, y);
-    this.c.lineTo(x, y - 1);
-    this.c.lineTo(x + 1, y - 1);
-    this.c.lineTo(x + 2, y);
-    this.c.lineTo(x + 1, y + 1);
-    this.c.lineTo(x, y + 1);
-    this.c.lineTo(x, y);
-    this.c.fill();
-    this.c.stroke();
+Renderer.prototype.drawNode = function (x, y, side) {
+    this.c.drawImage(this.playerSprites[side], 6, 36, 3, 3, x, y, 3, 3);
 };
 
 Renderer.prototype.drawWire = function (player, wire) {
@@ -125,7 +138,7 @@ Renderer.prototype.drawWire = function (player, wire) {
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
         if (wire.nodes[startRow]) {
-            this.drawNode(10.5, 14.5 + (wire.topRow + startRow) * 4, player.color);
+            this.drawNode(10, 13 + (wire.topRow + startRow) * 4, player.side);
         }
     }, this);
 };
