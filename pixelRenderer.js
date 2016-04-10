@@ -165,17 +165,29 @@ Renderer.prototype.drawWireType = {
         this.drawWireSegment(16, y, 12, offset, 2, s);
     },
     fork: function (wire, y, side, offset) {
-        var s = wire.nodes[1] ? side : null;
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(5, y, 8, offset, 2, s);
+        this.drawDeadEnd(12, y, side);
+
+        s = wire.nodes[1] ? side : null;
         this.drawWireSegment(5, y + 4, 11, offset, 2, s);
         this.drawWireSegment(16, y + 4, 4, offset + 4, 1, s);
         this.drawWireSegment(16, y, 12, offset, 2, s);
         this.drawWireSegment(16, y + 4, 4, offset + 4, 3, s);
         this.drawWireSegment(16, y + 8, 12, offset, 2, s);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(5, y + 8, 8, offset, 2, s);
+        this.drawDeadEnd(12, y + 8, side);
     },
-    fork2: function (wire, y, side, offset) {
+    revfork: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
         this.drawWireSegment(5, y, 11, offset, 2, s);
         this.drawWireSegment(16, y, 4, offset + 4, 3, s);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(5, y + 4, 8, offset, 2, s);
+        this.drawDeadEnd(12, y + 4, side);
 
         s = wire.nodes[2] ? side : null;
         this.drawWireSegment(5, y + 8, 11, offset, 2, s);
@@ -212,6 +224,10 @@ Renderer.prototype.drawWireSegment = function (x, y, length, offset, dir, side) 
             this.c.drawImage(this.playerSprites[side], 19, 13 - offset, 1, length, x, y, 1, length);
         }
     }
+};
+
+Renderer.prototype.drawDeadEnd = function (x, y, side) {
+    this.c.drawImage(this.playerSprites[side], 10, 37, 2, 1, x, y, 2, 1);
 };
 
 Renderer.prototype.onClick = function (x, y) {

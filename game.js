@@ -75,7 +75,7 @@ Game.prototype.updateRowLight = function (row) {
         var wire = player.wireAtRow[row];
         var wireRow = row - wire.topRow;
 
-        return wire.type.endRows.indexOf(wireRow) > -1 && wire.type.startRows.every(function (startRow) {
+        return wireRow in wire.type.endRows && wire.type.endRows[wireRow].every(function (startRow) {
             return wire.nodes[startRow];
         });
     });
@@ -220,30 +220,41 @@ Player.wireTypes = [
         name: 'straight',
         rows: 1,
         startRows: [0],
-        endRows: [0]
+        endRows: {
+            0: [0]
+        }
     },
     {
         name: 'zigzag',
         rows: 2,
         startRows: [0],
-        endRows: [1]
+        endRows: {
+            1: [0]
+        }
     },
     {
         name: 'zigzag2',
         rows: 2,
         startRows: [1],
-        endRows: [0]
+        endRows: {
+            0: [1]
+        }
     },
     {
         name: 'fork',
         rows: 3,
-        startRows: [1],
-        endRows: [0, 2]
+        startRows: [0, 1, 2],
+        endRows: {
+            0: [1],
+            2: [1]
+        }
     },
     {
-        name: 'fork2',
+        name: 'revfork',
         rows: 3,
-        startRows: [0, 2],
-        endRows: [1]
+        startRows: [0, 1, 2],
+        endRows: {
+            1: [0, 2]
+        }
     }
 ];

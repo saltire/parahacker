@@ -162,6 +162,14 @@ Renderer.prototype.drawWireType = {
     fork: function (wire, y, side, offset) {
         this.drawWireSegment(function () {
             this.c.beginPath();
+            this.c.moveTo(40, y);
+            this.c.lineTo(120, y);
+            this.c.stroke();
+        }, wire.nodes[0] ? side : null, offset);
+        this.drawDeadEnd(120, y, side);
+
+        this.drawWireSegment(function () {
+            this.c.beginPath();
             this.c.moveTo(40, y + 40);
             this.c.lineTo(200, y + 40);
             this.c.lineTo(200, y);
@@ -176,8 +184,16 @@ Renderer.prototype.drawWireType = {
             this.c.lineTo(360, y + 80);
             this.c.stroke();
         }, wire.nodes[1] ? side : null, offset + 160);
+
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y + 80);
+            this.c.lineTo(120, y + 80);
+            this.c.stroke();
+        }, wire.nodes[2] ? side : null, offset);
+        this.drawDeadEnd(120, y + 80, side);
     },
-    fork2: function (wire, y, side, offset) {
+    revfork: function (wire, y, side, offset) {
         this.drawWireSegment(function () {
             this.c.beginPath();
             this.c.moveTo(40, y);
@@ -185,6 +201,14 @@ Renderer.prototype.drawWireType = {
             this.c.lineTo(200, y + 40);
             this.c.stroke();
         }, wire.nodes[0] ? side : null, offset);
+
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y + 40);
+            this.c.lineTo(120, y + 40);
+            this.c.stroke();
+        }, wire.nodes[1] ? side : null, offset);
+        this.drawDeadEnd(120, y + 40, side);
 
         this.drawWireSegment(function () {
             this.c.beginPath();
@@ -232,6 +256,20 @@ Renderer.prototype.drawWireSegment = function (func, side, offset) {
 
         this.c.setLineDash([]);
     }
+};
+
+Renderer.prototype.drawDeadEnd = function (x, y, side) {
+    this.c.fillStyle = this.game.players[side].color;
+    this.c.strokeStyle = '#000';
+    this.c.beginPath();
+    this.c.moveTo(x, y);
+    this.c.lineTo(x + 6, y - 6);
+    this.c.lineTo(x + 12, y - 6);
+    this.c.lineTo(x + 12, y + 6);
+    this.c.lineTo(x + 6, y + 6);
+    this.c.lineTo(x, y);
+    this.c.fill();
+    this.c.stroke();
 };
 
 Renderer.prototype.onClick = function (x, y) {
