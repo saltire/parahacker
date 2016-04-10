@@ -132,104 +132,55 @@ Renderer.prototype.getFrameOffset = function (period, frameCount) {
 
 Renderer.prototype.drawWireType = {
     straight: function (wire, y, side, offset) {
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y);
-            this.c.lineTo(360, y);
-            this.c.stroke();
-        }, wire.nodes[0] ? side : null, offset);
+        this.drawWireSegment([[40, y], [360, y]], wire.nodes[0] ? side : null, offset);
     },
-    zigzag: function (wire, y, side, offset) {
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y);
-            this.c.lineTo(200, y);
-            this.c.lineTo(200, y + 40);
-            this.c.lineTo(360, y + 40);
-            this.c.stroke();
-        }, wire.nodes[0] ? side : null, offset);
-    },
-    zigzag2: function (wire, y, side, offset) {
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y + 40);
-            this.c.lineTo(200, y + 40);
-            this.c.lineTo(200, y);
-            this.c.lineTo(360, y);
-            this.c.stroke();
-        }, wire.nodes[1] ? side : null, offset);
+    deadend: function (wire, y, side, offset) {
+        this.drawWireSegment([[40, y], [280, y]], wire.nodes[0] ? side : null, offset);
+        this.drawDeadEnd(280, y, side);
     },
     fork: function (wire, y, side, offset) {
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y);
-            this.c.lineTo(120, y);
-            this.c.stroke();
-        }, wire.nodes[0] ? side : null, offset);
+        this.drawWireSegment([[40, y], [120, y]], wire.nodes[0] ? side : null, offset);
         this.drawDeadEnd(120, y, side);
 
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y + 40);
-            this.c.lineTo(200, y + 40);
-            this.c.lineTo(200, y);
-            this.c.lineTo(360, y);
-            this.c.stroke();
-        }, wire.nodes[1] ? side : null, offset);
+        this.drawWireSegment([[40, y + 40], [200, y + 40], [200, y], [360, y]], wire.nodes[1] ? side : null, offset);
+        this.drawWireSegment([[200, y + 40], [200, y + 80], [360, y + 80]], wire.nodes[1] ? side : null, offset + 160);
 
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(200, y + 40);
-            this.c.lineTo(200, y + 80);
-            this.c.lineTo(360, y + 80);
-            this.c.stroke();
-        }, wire.nodes[1] ? side : null, offset + 160);
-
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y + 80);
-            this.c.lineTo(120, y + 80);
-            this.c.stroke();
-        }, wire.nodes[2] ? side : null, offset);
+        this.drawWireSegment([[40, y + 80], [120, y + 80]], wire.nodes[2] ? side : null, offset);
         this.drawDeadEnd(120, y + 80, side);
     },
-    revfork: function (wire, y, side, offset) {
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y);
-            this.c.lineTo(200, y);
-            this.c.lineTo(200, y + 40);
-            this.c.stroke();
-        }, wire.nodes[0] ? side : null, offset);
+    fork2: function (wire, y, side, offset) {
+        this.drawWireSegment([[40, y], [200, y]], wire.nodes[0] ? side : null, offset);
+        this.drawDeadEnd(200, y, side);
 
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y + 40);
-            this.c.lineTo(120, y + 40);
-            this.c.stroke();
-        }, wire.nodes[1] ? side : null, offset);
+        this.drawWireSegment([[40, y + 40], [280, y + 40], [280, y], [360, y]], wire.nodes[1] ? side : null, offset);
+        this.drawWireSegment([[280, y + 40], [280, y + 80], [360, y + 80]], wire.nodes[1] ? side : null, offset + 240);
+
+        this.drawWireSegment([[40, y + 80], [200, y + 80]], wire.nodes[2] ? side : null, offset);
+        this.drawDeadEnd(200, y + 80, side);
+    },
+    revfork: function (wire, y, side, offset) {
+        this.drawWireSegment([[40, y + 40], [120, y + 40]], wire.nodes[1] ? side : null, offset);
         this.drawDeadEnd(120, y + 40, side);
 
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(40, y + 80);
-            this.c.lineTo(200, y + 80);
-            this.c.lineTo(200, y + 40);
-            this.c.stroke();
-        }, wire.nodes[2] ? side : null, offset);
-
-        this.drawWireSegment(function () {
-            this.c.beginPath();
-            this.c.moveTo(200, y + 40);
-            this.c.lineTo(360, y + 40);
-            this.c.stroke();
-        }, wire.nodes[0] && wire.nodes[2] ? side : null, offset + 200);
+        this.drawWireSegment([[40, y], [200, y], [200, y + 40]], wire.nodes[0] ? side : null, offset);
+        this.drawWireSegment([[40, y + 80], [200, y + 80], [200, y + 40]], wire.nodes[2] ? side : null, offset);
+        this.drawWireSegment([[200, y + 40], [360, y + 40]], wire.nodes[0] && wire.nodes[2] ? side : null, offset);
     }
 };
 
-Renderer.prototype.drawWireSegment = function (func, side, offset) {
+Renderer.prototype.drawWireSegment = function (points, side, offset) {
+    var drawSegment = function () {
+        // Draw a line based on an array of x,y pairs.
+        this.c.beginPath();
+        this.c.moveTo.apply(this.c, points[0]);
+        points.slice(1).forEach(function (point) {
+            this.c.lineTo.apply(this.c, point);
+        }, this);
+        this.c.stroke();
+    }.bind(this);
+
     this.c.strokeStyle = '#000';
-    func.call(this);
+    drawSegment();
 
     if (side !== null) {
         // Draw a series of dashed lines to create a multicoloured gradient.
@@ -240,19 +191,19 @@ Renderer.prototype.drawWireSegment = function (func, side, offset) {
 
         this.c.setLineDash([0, 12, 6, 32]);
         this.c.globalAlpha = 0.25;
-        func.call(this);
+        drawSegment();
 
         this.c.setLineDash([0, 22, 6, 22]);
         this.c.globalAlpha = 0.5;
-        func.call(this);
+        drawSegment();
 
         this.c.setLineDash([0, 32, 6, 12]);
         this.c.globalAlpha = 0.75;
-        func.call(this);
+        drawSegment();
 
         this.c.setLineDash([0, 42, 6, 2]);
         this.c.globalAlpha = 1;
-        func.call(this);
+        drawSegment();
 
         this.c.setLineDash([]);
     }

@@ -152,17 +152,10 @@ Renderer.prototype.drawWireType = {
         var s = wire.nodes[0] ? side : null;
         this.drawWireSegment(3, y, 25, offset, 2, s);
     },
-    zigzag: function (wire, y, side, offset) {
+    deadend: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
-        this.drawWireSegment(3, y, 12, offset, 2, s);
-        this.drawWireSegment(15, y, 4, offset + 4, 3, s);
-        this.drawWireSegment(15, y + 4, 13, offset, 2, s);
-    },
-    zigzag2: function (wire, y, side, offset) {
-        var s = wire.nodes[1] ? side : null;
-        this.drawWireSegment(3, y + 4, 12, offset, 2, s);
-        this.drawWireSegment(15, y + 4, 4, offset + 4, 1, s);
-        this.drawWireSegment(15, y, 13, offset, 2, s);
+        this.drawWireSegment(3, y, 19, offset, 2, s);
+        this.drawDeadEnd(22, y, side);
     },
     fork: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
@@ -179,6 +172,22 @@ Renderer.prototype.drawWireType = {
         s = wire.nodes[2] ? side : null;
         this.drawWireSegment(3, y + 8, 7, offset, 2, s);
         this.drawDeadEnd(10, y + 8, side);
+    },
+    fork2: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(3, y, 13, offset, 2, s);
+        this.drawDeadEnd(16, y, side);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(3, y + 4, 18, offset, 2, s);
+        this.drawWireSegment(21, y + 4, 4, offset + 4, 1, s);
+        this.drawWireSegment(21, y, 7, offset, 2, s);
+        this.drawWireSegment(21, y + 4, 4, offset + 4, 3, s);
+        this.drawWireSegment(21, y + 8, 7, offset, 2, s);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(3, y + 8, 13, offset, 2, s);
+        this.drawDeadEnd(16, y + 8, side);
     },
     revfork: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;

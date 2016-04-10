@@ -225,23 +225,22 @@ Player.wireTypes = [
         }
     },
     {
-        name: 'zigzag',
-        rows: 2,
+        name: 'deadend',
+        rows: 1,
         startRows: [0],
-        endRows: {
-            1: [0]
-        }
-    },
-    {
-        name: 'zigzag2',
-        rows: 2,
-        startRows: [1],
-        endRows: {
-            0: [1]
-        }
+        endRows: {}
     },
     {
         name: 'fork',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            0: [1],
+            2: [1]
+        }
+    },
+    {
+        name: 'fork2',
         rows: 3,
         startRows: [0, 1, 2],
         endRows: {
