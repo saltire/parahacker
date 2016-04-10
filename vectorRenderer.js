@@ -116,7 +116,7 @@ Renderer.prototype.drawNode = function (x, y, color) {
 };
 
 Renderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name].call(this, wire, 120 + wire.topRow * 40, player.color);
+    this.drawWireType[wire.type.name].call(this, wire, 120 + wire.topRow * 40, player.side, -this.getFrameOffset(1000, 5) * 10);
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
@@ -126,64 +126,111 @@ Renderer.prototype.drawWire = function (player, wire) {
     }, this);
 };
 
+Renderer.prototype.getFrameOffset = function (period, frameCount) {
+    return Math.floor(this.game.ts % period / period * frameCount);
+};
+
 Renderer.prototype.drawWireType = {
-    straight: function (wire, y, color) {
-        this.c.strokeStyle = wire.nodes[0] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y);
-        this.c.lineTo(360, y);
-        this.c.stroke();
+    straight: function (wire, y, side, offset) {
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y);
+            this.c.lineTo(360, y);
+            this.c.stroke();
+        }, wire.nodes[0] ? side : null, offset);
     },
-    zigzag: function (wire, y, color) {
-        this.c.strokeStyle = wire.nodes[0] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y);
-        this.c.lineTo(200, y);
-        this.c.lineTo(200, y + 40);
-        this.c.lineTo(360, y + 40);
-        this.c.stroke();
+    zigzag: function (wire, y, side, offset) {
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y);
+            this.c.lineTo(200, y);
+            this.c.lineTo(200, y + 40);
+            this.c.lineTo(360, y + 40);
+            this.c.stroke();
+        }, wire.nodes[0] ? side : null, offset);
     },
-    zigzag2: function (wire, y, color) {
-        this.c.strokeStyle = wire.nodes[1] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y + 40);
-        this.c.lineTo(200, y + 40);
-        this.c.lineTo(200, y);
-        this.c.lineTo(360, y);
-        this.c.stroke();
+    zigzag2: function (wire, y, side, offset) {
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y + 40);
+            this.c.lineTo(200, y + 40);
+            this.c.lineTo(200, y);
+            this.c.lineTo(360, y);
+            this.c.stroke();
+        }, wire.nodes[1] ? side : null, offset);
     },
-    fork: function (wire, y, color) {
-        this.c.strokeStyle = wire.nodes[1] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y + 40);
-        this.c.lineTo(200, y + 40);
-        this.c.lineTo(200, y);
-        this.c.lineTo(360, y);
-        this.c.moveTo(200, y + 40);
-        this.c.lineTo(200, y + 80);
-        this.c.lineTo(360, y + 80);
-        this.c.stroke();
-    },
-    fork2: function (wire, y, color) {
-        this.c.strokeStyle = wire.nodes[0] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y);
-        this.c.lineTo(200, y);
-        this.c.lineTo(200, y + 40);
-        this.c.stroke();
+    fork: function (wire, y, side, offset) {
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y + 40);
+            this.c.lineTo(200, y + 40);
+            this.c.lineTo(200, y);
+            this.c.lineTo(360, y);
+            this.c.stroke();
+        }, wire.nodes[1] ? side : null, offset);
 
-        this.c.strokeStyle = wire.nodes[2] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(40, y + 80);
-        this.c.lineTo(200, y + 80);
-        this.c.lineTo(200, y + 40);
-        this.c.stroke();
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(200, y + 40);
+            this.c.lineTo(200, y + 80);
+            this.c.lineTo(360, y + 80);
+            this.c.stroke();
+        }, wire.nodes[1] ? side : null, offset + 160);
+    },
+    fork2: function (wire, y, side, offset) {
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y);
+            this.c.lineTo(200, y);
+            this.c.lineTo(200, y + 40);
+            this.c.stroke();
+        }, wire.nodes[0] ? side : null, offset);
 
-        this.c.strokeStyle = wire.nodes[0] && wire.nodes[2] ? color : '#000';
-        this.c.beginPath();
-        this.c.moveTo(200, y + 40);
-        this.c.lineTo(360, y + 40);
-        this.c.stroke();
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(40, y + 80);
+            this.c.lineTo(200, y + 80);
+            this.c.lineTo(200, y + 40);
+            this.c.stroke();
+        }, wire.nodes[2] ? side : null, offset);
+
+        this.drawWireSegment(function () {
+            this.c.beginPath();
+            this.c.moveTo(200, y + 40);
+            this.c.lineTo(360, y + 40);
+            this.c.stroke();
+        }, wire.nodes[0] && wire.nodes[2] ? side : null, offset + 200);
+    }
+};
+
+Renderer.prototype.drawWireSegment = function (func, side, offset) {
+    this.c.strokeStyle = '#000';
+    func.call(this);
+
+    if (side !== null) {
+        // Draw a series of dashed lines to create a multicoloured gradient.
+        // Actual gradients would look better, but there's no good way yet to
+        // align them to the stroke direction or transform them for animation.
+        this.c.strokeStyle = this.game.players[side].color;
+        this.c.lineDashOffset = offset;
+
+        this.c.setLineDash([0, 12, 6, 32]);
+        this.c.globalAlpha = 0.25;
+        func.call(this);
+
+        this.c.setLineDash([0, 22, 6, 22]);
+        this.c.globalAlpha = 0.5;
+        func.call(this);
+
+        this.c.setLineDash([0, 32, 6, 12]);
+        this.c.globalAlpha = 0.75;
+        func.call(this);
+
+        this.c.setLineDash([0, 42, 6, 2]);
+        this.c.globalAlpha = 1;
+        func.call(this);
+
+        this.c.setLineDash([]);
     }
 };
 

@@ -133,7 +133,7 @@ Renderer.prototype.drawNode = function (x, y, side) {
 };
 
 Renderer.prototype.drawWire = function (player, wire) {
-    this.drawWireType[wire.type.name].call(this, wire, 14 + wire.topRow * 4, player.side, this.getFrameOffset(250, 5));
+    this.drawWireType[wire.type.name].call(this, wire, 14 + wire.topRow * 4, player.side, this.getFrameOffset(1000, 5));
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {
@@ -141,6 +141,10 @@ Renderer.prototype.drawWire = function (player, wire) {
             this.drawNode(10, 13 + (wire.topRow + startRow) * 4, player.side);
         }
     }, this);
+};
+
+Renderer.prototype.getFrameOffset = function (period, frameCount) {
+    return Math.floor(this.game.ts % period / period * frameCount);
 };
 
 Renderer.prototype.drawWireType = {
@@ -180,10 +184,6 @@ Renderer.prototype.drawWireType = {
         s = wire.nodes[0] && wire.nodes[2] ? side : null;
         this.drawWireSegment(16, y + 4, 12, offset, 2, s);
     }
-};
-
-Renderer.prototype.getFrameOffset = function (frameLength, frameCount) {
-    return Math.floor(this.game.ts % (frameLength * frameCount) / frameLength);
 };
 
 Renderer.prototype.drawWireSegment = function (x, y, length, offset, dir, side) {
