@@ -204,6 +204,43 @@ Renderer.prototype.drawWireType = {
         this.drawWireSegment(17, y + 4, 28, offset, s);
 
         this.drawSplitter(14, y, side);
+    },
+    ring: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(3, y, 10, offset, s);
+        this.drawDeadEnd(10, y, side);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(3, y + 4, 14, offset, s);
+        this.drawWireSegment(17, y, 20, offset, s);
+        this.drawWireSegment(17, y + 8, 20, offset, s);
+        this.drawWireSegment(20, y + 4, 28, offset, s);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(3, y + 8, 10, offset, s);
+        this.drawDeadEnd(10, y + 8, side);
+
+        this.drawSplitter(14, y, side);
+        this.drawSplitter(20, y, side);
+    },
+    doublefork: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(3, y, 14, offset, s);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(3, y + 4, 10, offset, s);
+        this.drawDeadEnd(10, y + 4, side);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(3, y + 8, 14, offset, s);
+
+        s = wire.nodes[0] && wire.nodes[2] ? side : null;
+        this.drawWireSegment(17, y + 4, 20, offset, s);
+        this.drawWireSegment(23, y, 28, offset, s);
+        this.drawWireSegment(23, y + 8, 28, offset, s);
+
+        this.drawSplitter(14, y, side);
+        this.drawSplitter(20, y, side);
     }
 };
 

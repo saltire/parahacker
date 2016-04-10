@@ -253,5 +253,22 @@ Player.wireTypes = [
         endRows: {
             1: [0, 2]
         }
+    },
+    {
+        name: 'ring',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            1: [1]
+        }
+    },
+    {
+        name: 'doublefork',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            0: [0, 2],
+            2: [0, 2]
+        }
     }
 ];
