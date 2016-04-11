@@ -12,23 +12,23 @@ window.requestAnimationFrame(drawFrame);
 
 canvas.focus();
 
-canvas.addEventListener('keypress', function (e) {
+canvas.addEventListener('keydown', function (e) {
     if (game.stage === 'done' || e.keyCode === 27) {
         // Reset game
         game = new Game(Renderer, canvas);
     }
-    else if (e.charCode === 97) {
+    else if (e.keyCode === 65) {
         // 1 left
     }
-    else if (e.charCode === 119) {
+    else if (e.keyCode === 87) {
         // 1 up
         game.players[0].onMove(1);
     }
-    else if (e.charCode === 100) {
+    else if (e.keyCode === 68) {
         // 1 right
         game.players[0].onRowSelect();
     }
-    else if (e.charCode === 115) {
+    else if (e.keyCode === 83) {
         // 1 down
         game.players[0].onMove(3);
     }
