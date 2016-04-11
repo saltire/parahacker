@@ -247,12 +247,42 @@ Player.wireTypes = [
         }
     },
     {
+        name: 'forkdeadend',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            2: [1]
+        }
+    },
+    {
+        name: 'forkdeadend2',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            0: [1]
+        }
+    },
+    {
         name: 'revfork',
         rows: 3,
         startRows: [0, 1, 2],
         endRows: {
             1: [0, 2]
         }
+    },
+    {
+        name: 'revfork2',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {
+            1: [0, 2]
+        }
+    },
+    {
+        name: 'revforkdeadend',
+        rows: 3,
+        startRows: [0, 1, 2],
+        endRows: {}
     },
     {
         name: 'ring',
@@ -269,6 +299,25 @@ Player.wireTypes = [
         endRows: {
             0: [0, 2],
             2: [0, 2]
+        }
+    },
+    {
+        name: 'revbranch',
+        rows: 4,
+        startRows: [0, 1, 2, 3],
+        endRows: {
+            2: [0, 2, 3]
+        }
+    },
+    {
+        name: 'revforkbranch',
+        rows: 6,
+        startRows: [0, 1, 2, 3, 4, 5],
+        endRows: {
+            1: [0, 2],
+            2: [4],
+            4: [4],
+            5: [4]
         }
     }
 ];

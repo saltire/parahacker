@@ -185,6 +185,40 @@ Renderer.prototype.drawWireType = {
 
         this.drawSplitter(280, y + 40, side);
     },
+    forkdeadend: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(40, y, 120, offset, s);
+        this.drawDeadEnd(120, y, side);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(40, y + 40, 200, offset, s);
+        this.drawWireSegment(200, y, 280, offset, s);
+        this.drawDeadEnd(280, y, side);
+        this.drawWireSegment(200, y + 80, 360, offset, s);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(40, y + 80, 120, offset, s);
+        this.drawDeadEnd(120, y + 80, side);
+
+        this.drawSplitter(200, y + 40, side);
+    },
+    forkdeadend2: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(40, y, 120, offset, s);
+        this.drawDeadEnd(120, y, side);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(40, y + 40, 200, offset, s);
+        this.drawWireSegment(200, y, 360, offset, s);
+        this.drawWireSegment(200, y + 80, 280, offset, s);
+        this.drawDeadEnd(280, y + 80, side);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(40, y + 80, 120, offset, s);
+        this.drawDeadEnd(120, y + 80, side);
+
+        this.drawSplitter(200, y + 40, side);
+    },
     revfork: function (wire, y, side, offset) {
         var s = wire.nodes[0] ? side : null;
         this.drawWireSegment(40, y, 200, offset, s);
@@ -198,6 +232,39 @@ Renderer.prototype.drawWireType = {
 
         s = wire.nodes[0] && wire.nodes[2] ? side : null;
         this.drawWireSegment(200, y + 40, 360, offset, s);
+
+        this.drawSplitter(200, y + 40, side, true);
+    },
+    revfork2: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(40, y, 280, offset, s);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(40, y + 40, 200, offset, s);
+        this.drawDeadEnd(200, y + 40, side);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(40, y + 80, 280, offset, s);
+
+        s = wire.nodes[0] && wire.nodes[2] ? side : null;
+        this.drawWireSegment(280, y + 40, 360, offset, s);
+
+        this.drawSplitter(280, y + 40, side, true);
+    },
+    revforkdeadend: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(40, y, 200, offset, s);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(40, y + 40, 120, offset, s);
+        this.drawDeadEnd(120, y + 40, side);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(40, y + 80, 200, offset, s);
+
+        s = wire.nodes[0] && wire.nodes[2] ? side : null;
+        this.drawWireSegment(200, y + 40, 280, offset, s);
+        this.drawDeadEnd(280, y + 40, side);
 
         this.drawSplitter(200, y + 40, side, true);
     },
@@ -237,6 +304,50 @@ Renderer.prototype.drawWireType = {
 
         this.drawSplitter(200, y + 40, side, true);
         this.drawSplitter(280, y + 40, side);
+    },
+    revbranch: function (wire, y, side, offset) {
+        var s = wire.nodes[0] ? side : null;
+        this.drawWireSegment(40, y, 200, offset, s);
+
+        s = wire.nodes[1] ? side : null;
+        this.drawWireSegment(40, y + 40, 120, offset, s);
+        this.drawDeadEnd(120, y + 40, side);
+
+        s = wire.nodes[2] ? side : null;
+        this.drawWireSegment(40, y + 80, 200, offset, s);
+
+        s = wire.nodes[0] && wire.nodes[2] ? side : null;
+        this.drawWireSegment(200, y + 40, 280, offset, s);
+
+        s = wire.nodes[3] ? side : null;
+        this.drawWireSegment(40, y + 120, 280, offset, s);
+
+        s = wire.nodes[0] && wire.nodes[2] && wire.nodes[3] ? side : null;
+        this.drawWireSegment(280, y + 80, 360, offset, s);
+
+        this.drawSplitter(200, y + 40, side, true);
+        this.drawSplitter(280, y + 80, side, true);
+    },
+    revforkbranch: function (wire, y, side, offset) {
+        this.drawWireType['revfork'].call(this, wire, y, side, offset);
+
+        s = wire.nodes[3] ? side : null;
+        this.drawWireSegment(40, y + 120, 120, offset, s);
+        this.drawDeadEnd(120, y + 120, side);
+
+        s = wire.nodes[4] ? side: null;
+        this.drawWireSegment(40, y + 160, 200, offset, s);
+        this.drawWireSegment(200, y + 120, 280, offset, s);
+        this.drawWireSegment(280, y + 80, 360, offset, s);
+        this.drawWireSegment(280, y + 160, 360, offset, s);
+        this.drawWireSegment(200, y + 200, 360, offset, s);
+
+        s = wire.nodes[5] ? side : null;
+        this.drawWireSegment(40, y + 200, 120, offset, s);
+        this.drawDeadEnd(120, y + 200, side);
+
+        this.drawSplitter(200, y + 160, side);
+        this.drawSplitter(280, y + 120, side);
     }
 };
 
