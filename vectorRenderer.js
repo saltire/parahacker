@@ -1,24 +1,18 @@
 var Renderer = function (game, canvas) {
     this.game = game;
-
     this.canvas = canvas;
+    this.c = canvas.getContext('2d');
 
     this.hscale = this.canvas.width / 800;
     this.vscale = this.canvas.height / 600;
-
-    this.c = canvas.getContext('2d');
     this.c.scale(this.hscale, this.vscale);
 
     this.c.lineWidth = 4;
     this.c.lineCap = 'square';
     this.c.lineJoin = 'bevel';
 
-    this.backgroundColor = '#666';
-    this.timerColor = '#fff';
-
-    this.columns = [40, 120, 200, 280, 360];
-
     this.playerGradients = this.game.players.map(function (player) {
+        // Create a gradient pattern for active wires.
         var gradCanvas = document.createElement('canvas');
         gradCanvas.width = 50;
         gradCanvas.height = 1;
@@ -34,7 +28,7 @@ var Renderer = function (game, canvas) {
 
 Renderer.prototype.drawFrame = function () {
     // Fill canvas with background.
-    this.c.fillStyle = this.backgroundColor;
+    this.c.fillStyle = '#666';
     this.c.fillRect(0, 0, 800, 600);
 
     // Draw timer.
@@ -53,7 +47,7 @@ Renderer.prototype.drawTimer = function () {
     if (this.game.stage === 'warmup' || this.game.stage === 'game') {
         // Fill a percentage of the timer bar.
         timerLength = 320 * this.game.timer;
-        this.c.strokeStyle = this.timerColor;
+        this.c.strokeStyle = '#fff';
     }
     else if (this.game.stage === 'gameover') {
         // Fill the timer bar with the color of the winning player.
@@ -142,8 +136,8 @@ Renderer.prototype.drawWire = function (player, wire) {
 };
 
 Renderer.prototype.drawWireSegment = function (wire, col1, col2, wireRow, active) {
-    var x1 = this.columns[col1];
-    var x2 = this.columns[col2];
+    var x1 = 40 + col1 * 80;
+    var x2 = 40 + col2 * 80;
     var y = 120 + (wire.topRow + wireRow) * 40;
     var offset = this.getFrameOffset(1000, 5) * 10;
     this.c.strokeStyle = active ? this.playerGradients[wire.side] : '#000';
@@ -156,7 +150,7 @@ Renderer.prototype.drawWireSegment = function (wire, col1, col2, wireRow, active
 };
 
 Renderer.prototype.drawSplitter = function (wire, col, wireRow, reverse) {
-    var x = this.columns[col];
+    var x = 40 + col * 80;
     var y = 120 + (wire.topRow + wireRow) * 40;
     this.c.fillStyle = this.game.players[wire.side].color;
     this.c.strokeStyle = '#000';
@@ -172,7 +166,7 @@ Renderer.prototype.drawSplitter = function (wire, col, wireRow, reverse) {
 };
 
 Renderer.prototype.drawDeadEnd = function (wire, col, wireRow) {
-    var x = this.columns[col];
+    var x = 40 + col * 80;
     var y = 120 + (wire.topRow + wireRow) * 40;
     this.c.fillStyle = this.game.players[wire.side].color;
     this.c.strokeStyle = '#000';

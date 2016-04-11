@@ -1,27 +1,14 @@
 var Renderer = function (game, canvas) {
     this.game = game;
-
     this.canvas = canvas;
-    this.offscreen = document.createElement('canvas');
-    this.offscreen.width = 600;
-    this.offscreen.height = 600;
+    this.c = canvas.getContext('2d');
 
     this.hscale = this.canvas.width / 64;
     this.vscale = this.canvas.height / 64;
-
-    this.c = canvas.getContext('2d');
     this.c.scale(this.hscale, this.vscale);
+
     this.c.imageSmoothingEnabled = false;
     this.c.mozImageSmoothingEnabled = false;
-
-    this.c.lineWidth = 1;
-    this.c.lineCap = 'square';
-    this.c.lineJoin = 'miter';
-
-    this.backgroundColor = '#666';
-    this.timerColor = '#fff';
-
-    this.columns = [3, 9, 15, 21, 27];
 
     this.sprite = new Image();
     this.sprite.src = './sprite.png';
@@ -51,6 +38,16 @@ Renderer.prototype.spriteLoaded = function () {
 
         return playerSprite;
     }, this);
+
+    this.playerGradients = this.game.players.map(function (player, i) {
+        // Create a gradient pattern for active wires.
+        var gradCanvas = document.createElement('canvas');
+        gradCanvas.width = 5;
+        gradCanvas.height = 1;
+        var gradCtx = gradCanvas.getContext('2d');
+        gradCtx.drawImage(this.playerSprites[i], 6, 7, 5, 1, 0, 0, 5, 1);
+        return this.c.createPattern(gradCanvas, null);
+    }, this);
 };
 
 Renderer.prototype.drawFrame = function () {
@@ -59,7 +56,7 @@ Renderer.prototype.drawFrame = function () {
     }
 
     // Fill canvas with background.
-    this.c.fillStyle = this.backgroundColor;
+    this.c.fillStyle = '#666';
     this.c.fillRect(0, 0, 64, 64);
 
     // Draw timer.
@@ -83,7 +80,7 @@ Renderer.prototype.drawTimer = function () {
     if (this.game.stage === 'warmup' || this.game.stage === 'game') {
         // Fill a percentage of the timer bar.
         timerLength = Math.round(32 * this.game.timer);
-        this.c.fillStyle = this.timerColor;
+        this.c.fillStyle = '#fff';
         this.c.fillRect(32 - timerLength, 0, timerLength * 2, 1);
         this.c.fillRect(32 - timerLength, 63, timerLength * 2, 1);
     }
@@ -146,29 +143,26 @@ Renderer.prototype.drawWire = function (player, wire) {
 };
 
 Renderer.prototype.drawWireSegment = function (wire, col1, col2, wireRow, active) {
-    var x1 = this.columns[col1];
-    var x2 = this.columns[col2];
-    var length = x2 - x1 + 1;
+    var x1 = 3 + col1 * 6;
+    var x2 = 3 + col2 * 6;
     var y = 14 + (wire.topRow + wireRow) * 4;
-
-    if (!active) {
-        this.c.fillStyle = '#000';
-        this.c.fillRect(x1, y, length, 1);
-    }
-    else {
-        var offset = this.getFrameOffset(1000, 5);
-        this.c.drawImage(this.playerSprites[wire.side], 10 - offset, 7, length, 1, x1, y, length, 1);
-    }
+    var offset = this.getFrameOffset(1000, 5);
+    this.c.fillStyle = active ? this.playerGradients[wire.side] : '#000';
+    this.c.translate(offset, 0);
+    this.c.fillRect(x1 - offset, y, x2 - x1 + 1, 1);
+    this.c.translate(-offset, 0);
 };
 
 Renderer.prototype.drawSplitter = function (wire, col, wireRow) {
-    var y = 14 + (wire.topRow + wireRow - 1) * 4;
-    this.c.drawImage(this.playerSprites[wire.side], 6, 40, 3, 9, this.columns[col] - 1, y, 3, 9);
+    var x = 3 + col * 6;
+    var y = 14 + (wire.topRow + wireRow) * 4;
+    this.c.drawImage(this.playerSprites[wire.side], 6, 40, 3, 9, x - 1, y - 4, 3, 9);
 };
 
 Renderer.prototype.drawDeadEnd = function (wire, col, wireRow) {
+    var x = 3 + col * 6;
     var y = 14 + (wire.topRow + wireRow) * 4;
-    this.c.drawImage(this.playerSprites[wire.side], 10, 37, 2, 1, this.columns[col], y, 2, 1);
+    this.c.drawImage(this.playerSprites[wire.side], 10, 37, 2, 1, x, y, 2, 1);
 };
 
 Renderer.prototype.getFrameOffset = function (period, frameCount) {
