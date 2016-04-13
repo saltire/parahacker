@@ -24,6 +24,8 @@ var Game = function (colors) {
 
 Game.prototype.drawFrame = function (renderer, ts) {
     if (this.new) {
+        renderer.generatePlayerSprites(this.players);
+
         this.new = false;
         this.startTs = ts;
     }

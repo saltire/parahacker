@@ -1,4 +1,4 @@
-var Title = function (canvas, renderer) {
+var Title = function (canvas) {
     this.playerColors = [
         ['#f200b6', '#f21400', '#f26500', '#f2a200', '#ffea00'],
         ['#8df200', '#00e500', '#00d5ff', '#0080ff', '#7700e5']

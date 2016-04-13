@@ -41,7 +41,7 @@ Renderer.prototype.drawTitleFrame = function (title) {
 
 Renderer.prototype.generateTitleSprites = function () {
     this.titleOverlay = document.createElement('canvas');
-    this.titleOverlay.height = 10;
+    this.titleOverlay.height = 4 + Math.floor(Math.random() * 6) * 2;
     this.titleOverlay.width = 1;
 
     this.titleMask = document.createElement('canvas');
@@ -75,7 +75,7 @@ Renderer.prototype.drawTitle = function (playerColors, playerColorIndices) {
     var titleMaskCtx = this.titleMask.getContext('2d');
     titleMaskCtx.fillStyle = overlayPattern;
     titleMaskCtx.translate(0, -offset);
-    titleMaskCtx.fillRect(0, -10, 64, 64);
+    titleMaskCtx.fillRect(0, 0, 64, 64);
     titleMaskCtx.translate(0, offset);
 
     // Draw the masked overlay onto the title.
@@ -106,10 +106,6 @@ Renderer.prototype.drawColorSelection = function (playerColors, playerColorIndic
 };
 
 Renderer.prototype.drawGameFrame = function (game) {
-    if (!this.playerSprites) {
-        this.generatePlayerSprites(game.players);
-    }
-
     // Fill canvas with background.
     this.c.fillStyle = '#666';
     this.c.fillRect(0, 0, 64, 64);
