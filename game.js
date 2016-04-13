@@ -1,6 +1,6 @@
 // Game object
 
-var Game = function (renderer, canvas) {
+var Game = function (colors) {
     this.new = true;
     this.warmupLength = 1500;
     this.gameLength = 10000;
@@ -9,29 +9,26 @@ var Game = function (renderer, canvas) {
     this.players = [
         new Player(this, {
             side: 0,
-            color: '#fbfb00',
+            color: colors[0],
             nodes: 5
         }),
         new Player(this, {
             side: 1,
-            color: '#e600e6',
+            color: colors[1],
             nodes: 5
         })
     ];
     this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     this.topLight = null;
-
-    this.renderer = new renderer(this, canvas);
 };
 
-Game.prototype.drawFrame = function (ts) {
+Game.prototype.drawFrame = function (renderer, ts) {
     if (this.new) {
         this.new = false;
         this.startTs = ts;
     }
-    ts -= this.startTs;
-    var delta = ts - this.ts;
-    this.ts = ts;
+    var delta = ts - this.startTs - this.ts;
+    this.ts = ts - this.startTs;
 
     // Set game stage and calculate timer.
     if (this.ts < this.warmupLength) {
@@ -64,7 +61,7 @@ Game.prototype.drawFrame = function (ts) {
     }
     this.updateTopLight();
 
-    this.renderer.drawFrame();
+    renderer.drawGameFrame(this);
 };
 
 Game.prototype.updateRowLight = function (row) {
@@ -107,6 +104,49 @@ Game.prototype.updateTopLight = function () {
     }
     else {
         this.topLight = null;
+    }
+};
+
+Game.prototype.onKeyDown = function (e) {
+    if (this.stage === 'done') {
+        this.done = true;
+        return;
+    }
+
+    // Abort if we are not in the game stage.
+    if (this.stage !== 'game') {
+        return;
+    }
+
+    if (e.keyCode === 65) {
+        // 1 left
+    }
+    else if (e.keyCode === 87) {
+        // 1 up
+        this.players[0].move(1);
+    }
+    else if (e.keyCode === 68) {
+        // 1 right
+        this.players[0].selectRow();
+    }
+    else if (e.keyCode === 83) {
+        // 1 down
+        this.players[0].move(3);
+    }
+    else if (e.keyCode === 37) {
+        // 2 left
+        this.players[1].selectRow();
+    }
+    else if (e.keyCode === 38) {
+        // 2 up
+        this.players[1].move(1);
+    }
+    else if (e.keyCode === 39) {
+        // 2 right
+    }
+    else if (e.keyCode === 40) {
+        // 2 down
+        this.players[1].move(3);
     }
 };
 
@@ -159,12 +199,7 @@ Player.prototype.checkNodes = function (delta) {
     }, this);
 };
 
-Player.prototype.onMove = function (dir) {
-    // Abort if we are not in game stage.
-    if (this.game.stage !== 'game') {
-        return;
-    }
-
+Player.prototype.move = function (dir) {
     // Subtract a node, or abort if the player has none left.
     if (this.currentRow === -1) {
         if (!this.nodes) {
@@ -189,12 +224,7 @@ Player.prototype.onMove = function (dir) {
     while (wire.type.startRows.indexOf(wireRow) === -1);
 };
 
-Player.prototype.onRowSelect = function () {
-    // Abort if we are not in game stage.
-    if (this.game.stage !== 'game') {
-        return;
-    }
-
+Player.prototype.selectRow = function () {
     // Abort if player does not have a row selected.
     if (this.currentRow === -1) {
         return;
