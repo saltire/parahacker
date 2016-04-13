@@ -1,8 +1,10 @@
 var canvas = document.getElementById('game');
-var game = new Game(Renderer, canvas);
+// var scene = new Game(Renderer, canvas);
+var scene = new Title(canvas);
 
 function drawFrame(ts) {
-    game.drawFrame(ts);
+    // scene.drawFrame(ts);
+    scene.drawFrame(ts);
     window.requestAnimationFrame(drawFrame);
 }
 window.requestAnimationFrame(drawFrame);
@@ -13,38 +15,40 @@ window.requestAnimationFrame(drawFrame);
 canvas.focus();
 
 canvas.addEventListener('keydown', function (e) {
-    if (game.stage === 'done' || e.keyCode === 27) {
+    if (scene.stage === 'done' || e.keyCode === 27) {
         // Reset game
-        game = new Game(Renderer, canvas);
+        scene = new Game(Renderer, canvas);
     }
     else if (e.keyCode === 65) {
         // 1 left
+        scene.onMove(0, 0);
     }
     else if (e.keyCode === 87) {
         // 1 up
-        game.players[0].onMove(1);
+        scene.onMove(0, 1);
     }
     else if (e.keyCode === 68) {
         // 1 right
-        game.players[0].onRowSelect();
+        scene.onMove(0, 2);
     }
     else if (e.keyCode === 83) {
         // 1 down
-        game.players[0].onMove(3);
+        scene.onMove(0, 3);
     }
     else if (e.keyCode === 37) {
         // 2 left
-        game.players[1].onRowSelect();
+        scene.onMove(1, 0);
     }
     else if (e.keyCode === 38) {
         // 2 up
-        game.players[1].onMove(1);
+        scene.onMove(1, 1);
     }
     else if (e.keyCode === 39) {
         // 2 right
+        scene.onMove(1, 2);
     }
     else if (e.keyCode === 40) {
         // 2 down
-        game.players[1].onMove(3);
+        scene.onMove(1, 3);
     }
 });
