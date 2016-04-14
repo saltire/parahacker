@@ -100,10 +100,10 @@ Renderer.prototype.drawColorSelection = function (playerColors, playerColorIndic
     }, this);
     playerColors[1].forEach(function (color, i) {
         this.c.fillStyle = color;
-        this.c.fillRect(47 + i * 3, 62, 3, 1);
+        this.c.fillRect(46 + i * 3, 62, 3, 1);
         if (playerColorIndices[1] === i) {
             this.c.fillStyle = '#fff';
-            this.c.fillRect(47 + i * 3, 63, 3, 1);
+            this.c.fillRect(46 + i * 3, 63, 3, 1);
         }
     }, this);
 };
