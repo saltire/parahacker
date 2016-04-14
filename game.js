@@ -6,6 +6,8 @@ var Game = function (players) {
     this.gameLength = 10000;
     this.cooldownLength = 1500;
 
+    this.nodeLifetime = 4000;
+
     this.players = players.map(function (player) {
         return new Player(this, player);
     }, this);
@@ -166,8 +168,6 @@ var Player = function (game, opts) {
     this.wireAtRow = [];
     this.currentRow = -1;
 
-    this.nodeLifetime = 4000;
-
     var wirePool = [];
     wireTypes.forEach(function (wireType) {
         for (var c = 0; c < (wireType.weight || 1); c++) {
@@ -248,6 +248,6 @@ Player.prototype.selectRow = function () {
     if (wire.nodes[wireRow]) {
         return;
     }
-    wire.nodes[wireRow] = this.nodeLifetime;
+    wire.nodes[wireRow] = this.game.nodeLifetime;
     this.currentRow = -1;
 };

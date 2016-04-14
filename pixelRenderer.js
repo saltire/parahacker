@@ -11,7 +11,7 @@ var Renderer = function (canvas) {
 
     this.images = {};
     this.imagesLoaded = false;
-    var imageFiles = ['title', 'titleBack', 'game', 'gameBack'];
+    var imageFiles = ['title', 'titleBack', 'player', 'gameBack'];
     for (var img in imageFiles) {
         var image = new Image();
         image.src = './' + imageFiles[img] + '.png';
@@ -39,7 +39,7 @@ Renderer.prototype.drawTitleFrame = function (title) {
     this.drawColorSelection(title.playerColors, title.playerColorIndices);
 
     // Draw controls.
-    this.c.drawImage(this.images.title, 0, 50, 64, 11, 0, 50, 64, 11);
+    this.c.drawImage(this.images.title, 0, 50, 64, 12, 0, 50, 64, 12);
 };
 
 Renderer.prototype.generateTitleSprites = function () {
@@ -132,20 +132,20 @@ Renderer.prototype.generatePlayerSprites = function (players) {
     this.playerSprites = players.map(function (player) {
         // Create a canvas with the player color, masked to the sprite.
         var playerMask = document.createElement('canvas');
-        playerMask.width = this.images.game.width;
-        playerMask.height = this.images.game.height;
+        playerMask.width = this.images.player.width;
+        playerMask.height = this.images.player.height;
         var maskCtx = playerMask.getContext('2d');
-        maskCtx.drawImage(this.images.game, 0, 0);
+        maskCtx.drawImage(this.images.player, 0, 0);
         maskCtx.fillStyle = player.color;
         maskCtx.globalCompositeOperation = 'source-atop';
         maskCtx.fillRect(0, 0, playerMask.width, playerMask.height);
 
         // Create a sprite canvas for the player and overlay the masked color canvas onto it.
         var playerSprite = document.createElement('canvas');
-        playerSprite.width = this.images.game.width;
-        playerSprite.height = this.images.game.height;
+        playerSprite.width = this.images.player.width;
+        playerSprite.height = this.images.player.height;
         var spriteCtx = playerSprite.getContext('2d');
-        spriteCtx.drawImage(this.images.game, 0, 0);
+        spriteCtx.drawImage(this.images.player, 0, 0);
         spriteCtx.globalCompositeOperation = 'overlay';
         spriteCtx.drawImage(playerMask, 0, 0);
 
@@ -195,7 +195,7 @@ Renderer.prototype.drawTimer = function (game) {
 
 Renderer.prototype.drawTopLight = function (side) {
     if (side === null) {
-        this.c.drawImage(this.images.game, 6, 10, 10, 10, 27, 3, 10, 10);
+        this.c.drawImage(this.images.player, 6, 10, 10, 10, 27, 3, 10, 10);
     }
     else {
         this.c.drawImage(this.playerSprites[side], 6, 21, 10, 10, 27, 3, 10, 10);
@@ -208,14 +208,14 @@ Renderer.prototype.drawRowLight = function (side, row) {
 
 Renderer.prototype.drawGameoverScreen = function (side, players) {
     this.c.fillStyle = '#000';
-    this.c.fillRect(4, 14, 56, 1);
-    this.c.fillRect(4, 58, 56, 1);
+    this.c.fillRect(3, 14, 58, 1);
+    this.c.fillRect(3, 58, 58, 1);
     this.c.fillStyle = '#080808';
-    this.c.fillRect(4, 15, 56, 1);
-    this.c.fillRect(4, 57, 56, 1);
+    this.c.fillRect(3, 15, 58, 1);
+    this.c.fillRect(3, 57, 58, 1);
     this.c.globalAlpha = 0.95;
     this.c.fillStyle = '#0f0f0f';
-    this.c.fillRect(4, 16, 56, 41)
+    this.c.fillRect(3, 16, 58, 41)
     this.c.globalAlpha = 1;
 
     if (!this.gameoverSprite) {
@@ -240,7 +240,7 @@ Renderer.prototype.drawGameoverScreen = function (side, players) {
     this.c.drawImage(this.gameoverSprite, 5, 22, 54, 15);
 
     players.forEach(function (player) {
-        this.drawNumber(player.side ? 49 : 10, 44, player.score, player.side);
+        this.drawNumber(player.side ? 49 : 10, 43, player.score, player.side);
     }, this);
 };
 
@@ -254,7 +254,7 @@ Renderer.prototype.drawNumber = function (x, y, number, side) {
 
     for (var d = 0; d < digits.length; d++) {
         var digit = digits.slice(d, d + 1);
-        this.c.drawImage(this.playerSprites[side], 5 + digit * 6, 37, 5, 7, x + d * 6, y, 5, 7);
+        this.c.drawImage(this.playerSprites[side], 5 + digit * 6, 37, 5, 9, x + d * 6, y, 5, 9);
     }
 };
 

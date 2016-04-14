@@ -161,25 +161,25 @@ var wireTypes = [
         }
     },
 
-    // Reverse fork with a dead end
-    {
-        rows: 3,
-        startRows: [0, 1, 2],
-        endRows: {},
-        render: function (renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
-
-            renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 1, 1);
-
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
-
-            renderer.drawWireSegment(this, 2, 3, 1, this.nodes[0] && this.nodes[2]);
-            renderer.drawDeadEnd(this, 3, 1);
-
-            renderer.drawSplitter(this, 2, 1, true);
-        }
-    },
+    // // Reverse fork with a dead end
+    // {
+    //     rows: 3,
+    //     startRows: [0, 1, 2],
+    //     endRows: {},
+    //     render: function (renderer) {
+    //         renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+    //
+    //         renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
+    //         renderer.drawDeadEnd(this, 1, 1);
+    //
+    //         renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+    //
+    //         renderer.drawWireSegment(this, 2, 3, 1, this.nodes[0] && this.nodes[2]);
+    //         renderer.drawDeadEnd(this, 3, 1);
+    //
+    //         renderer.drawSplitter(this, 2, 1, true);
+    //     }
+    // },
 
     // Ring, or a fork followed by a reverse fork
     {
