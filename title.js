@@ -4,6 +4,20 @@ var Title = function (rendererCls, canvas) {
         ['#8df200', '#00e500', '#00d5ff', '#0080ff', '#7700e5']
     ];
     this.playerColorIndices = [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)];
+    this.players = [
+        {
+            color: this.playerColors[0][this.playerColorIndices[0]],
+            nodes: 5,
+            score: 0,
+            side: 0
+        },
+        {
+            color: this.playerColors[1][this.playerColorIndices[1]],
+            nodes: 5,
+            score: 0,
+            side: 1
+        }
+    ];
 
     // Create renderer.
     this.renderer = new rendererCls(canvas);
@@ -22,6 +36,10 @@ Title.prototype.drawFrame = function (ts) {
 
     if (this.game) {
         if (this.game.done) {
+            // If there is a winner, increment their score.
+            if (this.game.topLight !== null) {
+                this.players[this.game.topLight].score++;
+            }
             this.startGame();
         }
         return this.game.drawFrame(this.renderer, ts);
@@ -31,10 +49,7 @@ Title.prototype.drawFrame = function (ts) {
 };
 
 Title.prototype.startGame = function () {
-    var colors = this.playerColorIndices.map(function (index, i) {
-        return this.playerColors[i][index];
-    }, this);
-    this.game = new Game(colors);
+    this.game = new Game(this.players);
 };
 
 Title.prototype.onMove = function (player, dir) {
@@ -45,12 +60,19 @@ Title.prototype.onMove = function (player, dir) {
         this.playerColorIndices[player] += 1;
     }
     this.playerColorIndices[player] %= 5;
+    this.players[player].color = this.playerColors[player][this.playerColorIndices[player]];
 };
 
 Title.prototype.onKeyDown = function (e) {
     // Escape key overrides game key events.
     if (e.keyCode === 27) {
+        // End game.
         this.game = null;
+
+        // Reset player scores.
+        this.players.forEach(function (player) {
+            player.score = 0;
+        });
     }
 
     // Game key events.

@@ -49,7 +49,7 @@ Renderer.prototype.drawTimer = function () {
         timerLength = 320 * this.game.timer;
         this.c.strokeStyle = '#fff';
     }
-    else if (this.game.stage === 'gameover') {
+    else if (this.game.stage === 'cooldown') {
         // Fill the timer bar with the color of the winning player.
         timerLength = 320;
         this.c.strokeStyle = this.game.topLight === null ? '#000' : this.game.players[this.game.topLight].color;

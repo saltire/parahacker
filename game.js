@@ -1,23 +1,15 @@
 // Game object
 
-var Game = function (colors) {
+var Game = function (players) {
     this.new = true;
     this.warmupLength = 1500;
     this.gameLength = 10000;
-    this.gameoverLength = 1500;
+    this.cooldownLength = 1500;
 
-    this.players = [
-        new Player(this, {
-            side: 0,
-            color: colors[0],
-            nodes: 5
-        }),
-        new Player(this, {
-            side: 1,
-            color: colors[1],
-            nodes: 5
-        })
-    ];
+    this.players = players.map(function (player) {
+        return new Player(this, player);
+    }, this);
+
     this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
     this.topLight = null;
 };
@@ -41,15 +33,15 @@ Game.prototype.drawFrame = function (renderer, ts) {
         this.stage = 'game';
         this.timer = Math.max(this.warmupLength + this.gameLength - this.ts, 0) / this.gameLength;
     }
-    else if (this.ts < this.warmupLength + this.gameLength + this.gameoverLength) {
-        this.stage = 'gameover';
+    else if (this.ts < this.warmupLength + this.gameLength + this.cooldownLength) {
+        this.stage = 'cooldown';
         this.timer = 0;
         this.players.forEach(function (player) {
             player.currentRow = -1;
         });
     }
     else {
-        this.stage = 'done';
+        this.stage = 'gameover';
     }
 
     // Check for expired nodes.
@@ -62,6 +54,14 @@ Game.prototype.drawFrame = function (renderer, ts) {
         this.updateRowLight(row);
     }
     this.updateTopLight();
+
+    // If there is a winner, increment their score.
+    if (this.stage === 'cooldown' && !this.addedScore) {
+        this.addedScore = true;
+        if (this.topLight !== null) {
+            this.players[this.topLight].score++;
+        }
+    }
 
     renderer.drawGameFrame(this);
 };
@@ -110,7 +110,7 @@ Game.prototype.updateTopLight = function () {
 };
 
 Game.prototype.onKeyDown = function (e) {
-    if (this.stage === 'done') {
+    if (this.stage === 'gameover') {
         // On any key, signal to the title that the game is done.
         this.done = true;
         return;
@@ -160,6 +160,7 @@ var Player = function (game, opts) {
     this.game = game;
     this.color = opts.color;
     this.nodes = opts.nodes;
+    this.score = opts.score;
     this.side = opts.side;
     this.wires = [];
     this.wireAtRow = [];
