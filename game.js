@@ -111,6 +111,7 @@ Game.prototype.updateTopLight = function () {
 
 Game.prototype.onKeyDown = function (e) {
     if (this.stage === 'done') {
+        // On any key, signal to the title that the game is done.
         this.done = true;
         return;
     }
@@ -166,9 +167,16 @@ var Player = function (game, opts) {
 
     this.nodeLifetime = 4000;
 
+    var wirePool = [];
+    wireTypes.forEach(function (wireType) {
+        for (var c = 0; c < (wireType.weight || 1); c++) {
+            wirePool.push(wireType);
+        }
+    });
+
     var row = 0;
     while (row < 12) {
-        var wireType = wireTypes[Math.floor(Math.random() * wireTypes.length)];
+        var wireType = wirePool[Math.floor(Math.random() * wirePool.length)];
         if (row + wireType.rows <= 12) {
             var wire = {
                 side: this.side,

@@ -6,6 +6,7 @@ var wireTypes = [
         endRows: {
             0: [0]
         },
+        weight: 10,
         render: function (renderer) {
             renderer.drawWireSegment(this, 0, 4, 0, this.nodes[0]);
         }
@@ -16,6 +17,7 @@ var wireTypes = [
         rows: 1,
         startRows: [0],
         endRows: {},
+        weight: 2,
         render: function (renderer) {
             renderer.drawWireSegment(this, 0, 3, 0, this.nodes[0]);
             renderer.drawDeadEnd(this, 3, 0);
@@ -30,6 +32,7 @@ var wireTypes = [
             0: [1],
             2: [1]
         },
+        weight: 3,
         render: function (renderer) {
             renderer.drawWireSegment(this, 0, 1, 0, this.nodes[0]);
             renderer.drawDeadEnd(this, 1, 0);
@@ -121,6 +124,7 @@ var wireTypes = [
         endRows: {
             1: [0, 2]
         },
+        weight: 3,
         render: function (renderer) {
             renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
 

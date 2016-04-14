@@ -11,7 +11,7 @@ var Renderer = function (canvas) {
 
     this.images = {};
     this.imagesLoaded = false;
-    var imageFiles = ['title', 'titleBack', 'game'];
+    var imageFiles = ['title', 'titleBack', 'game', 'gameBack'];
     for (var img in imageFiles) {
         var image = new Image();
         image.src = './' + imageFiles[img] + '.png';
@@ -107,8 +107,7 @@ Renderer.prototype.drawColorSelection = function (playerColors, playerColorIndic
 
 Renderer.prototype.drawGameFrame = function (game) {
     // Fill canvas with background.
-    this.c.fillStyle = '#666';
-    this.c.fillRect(0, 0, 64, 64);
+    this.c.drawImage(this.images.gameBack, 0, 0);
 
     // Draw timer.
     this.drawTimer(game);
@@ -199,8 +198,6 @@ Renderer.prototype.drawPlayerSide = function (player) {
     this.c.drawImage(this.playerSprites[player.side], 1, 1, 4, 58, 0, 3, 4, 58);
 
     // Draw node area.
-    this.c.fillStyle = '#666';
-    this.c.fillRect(6, 5, 21, 3);
     for (var i = 0; i < player.nodes; i++) {
         this.drawNode(5 + i * 4, 5, player.side);
     }

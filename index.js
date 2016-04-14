@@ -1,8 +1,8 @@
 var canvas = document.getElementById('game');
-var paraHacker = new ParaHacker(Renderer, canvas);
+var title = new Title(Renderer, canvas);
 
 function drawFrame(ts) {
-    paraHacker.drawFrame(ts);
+    title.drawFrame(ts);
     window.requestAnimationFrame(drawFrame);
 }
 window.requestAnimationFrame(drawFrame);

@@ -1,20 +1,33 @@
-var Title = function (canvas) {
+var Title = function (rendererCls, canvas) {
     this.playerColors = [
         ['#f200b6', '#f21400', '#f26500', '#f2a200', '#ffea00'],
         ['#8df200', '#00e500', '#00d5ff', '#0080ff', '#7700e5']
     ];
     this.playerColorIndices = [Math.floor(Math.random() * 5), Math.floor(Math.random() * 5)];
+
+    // Create renderer.
+    this.renderer = new rendererCls(canvas);
+
+    // Add event listeners.
+    canvas.addEventListener('keydown', this.onKeyDown.bind(this));
 };
 
-Title.prototype.drawFrame = function (renderer, ts) {
-    if (this.game) {
-        if (!this.game.done) {
-            return this.game.drawFrame(renderer, ts);
-        }
-        this.game = null;
+Title.prototype.drawFrame = function (ts) {
+    this.renderer.ts = ts;
+
+    // Abort if images haven't loaded yet.
+    if (!this.renderer.imagesLoaded) {
+        return;
     }
 
-    renderer.drawTitleFrame(this);
+    if (this.game) {
+        if (this.game.done) {
+            this.startGame();
+        }
+        return this.game.drawFrame(this.renderer, ts);
+    }
+
+    this.renderer.drawTitleFrame(this);
 };
 
 Title.prototype.startGame = function () {
@@ -35,10 +48,17 @@ Title.prototype.onMove = function (player, dir) {
 };
 
 Title.prototype.onKeyDown = function (e) {
+    // Escape key overrides game key events.
+    if (e.keyCode === 27) {
+        this.game = null;
+    }
+
+    // Game key events.
     if (this.game) {
         return this.game.onKeyDown(e);
     }
 
+    // Title key events.
     if (e.keyCode === 13) {
         // Enter
         this.startGame();
