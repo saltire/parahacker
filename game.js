@@ -1,9 +1,7 @@
-// Game object
-
-var Game = function (players) {
+var Game = function (players, timer) {
     this.new = true;
     this.warmupLength = 1500;
-    this.gameLength = 10000;
+    this.gameLength = timer * 2000;
     this.cooldownLength = 1500;
 
     this.nodeLifetime = 4000;
@@ -19,8 +17,6 @@ var Game = function (players) {
 
 Game.prototype.drawFrame = function (renderer, ts) {
     if (this.new) {
-        renderer.generatePlayerSprites(this.players);
-
         this.new = false;
         this.startTs = ts;
     }
@@ -65,6 +61,11 @@ Game.prototype.drawFrame = function (renderer, ts) {
     }
     else {
         this.stage = 'gameover';
+
+        // Remove any remaining active nodes.
+        this.players.forEach(function (player) {
+            player.removeNodes();
+        });
     }
 
     // Check for expired nodes.
@@ -222,8 +223,16 @@ Player.prototype.checkNodes = function (delta) {
                     wire.nodes[i] = null;
                 }
             }
-        }, this);
-    }, this);
+        });
+    });
+};
+
+Player.prototype.removeNodes = function () {
+    this.wires.forEach(function (wire) {
+        wire.nodes.forEach(function (node, i) {
+            wire.nodes[i] = null;
+        });
+    });
 };
 
 Player.prototype.pickAiAction = function () {
@@ -258,7 +267,7 @@ Player.prototype.pickAiAction = function () {
             // Use node
             action: this.selectRow.bind(this),
             weight: (this.currentRow === -1 || wire.nodes[wireRow]) ? 0 :
-                (1 + endRows * 2 + enemyEndRows * 15)
+                (1 + endRows + enemyEndRows * 20)
         },
         {
             // Do nothing

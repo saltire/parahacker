@@ -1,4 +1,12 @@
 var Title = function (rendererCls, canvas) {
+    this.currentOpt = 0;
+
+    this.opts = {
+        twoPlayer: true,
+        nodes: [5, 5],
+        timer: 5
+    };
+
     this.playerColors = [
         ['#f200b6', '#f21400', '#f26500', '#f2a200', '#ffea00'],
         ['#8df200', '#00e500', '#00d5ff', '#0080ff', '#7700e5']
@@ -7,14 +15,14 @@ var Title = function (rendererCls, canvas) {
     this.players = [
         {
             color: this.playerColors[0][this.playerColorIndices[0]],
-            nodes: 5,
+            nodes: this.opts.nodes[0],
             score: 0,
             side: 0
         },
         {
-            ai: true,
+            ai: !this.opts.twoPlayer,
             color: this.playerColors[1][this.playerColorIndices[1]],
-            nodes: 5,
+            nodes: this.opts.nodes[1],
             score: 0,
             side: 1
         }
@@ -35,12 +43,28 @@ Title.prototype.drawFrame = function (ts) {
         return;
     }
 
+    if (this.options) {
+        if (this.options.done) {
+            this.options = null;
+            this.currentOpt = 0;
+
+            // Set player options.
+            this.players[1].ai = !this.opts.twoPlayers;
+            this.players.forEach(function (player, side) {
+                player.nodes = this.opts.nodes[side];
+            }, this);
+        }
+        else {
+            return this.options.drawFrame(this.renderer, ts);
+        }
+    }
+
     if (this.game) {
         if (this.game.done) {
-            // If there is a winner, increment their score.
-            if (this.game.topLight !== null) {
-                this.players[this.game.topLight].score++;
-            }
+            // Sync player scores with the game.
+            this.players.forEach(function (player, i) {
+                player.score = this.game.players[i].score;
+            }, this);
             this.startGame();
         }
         return this.game.drawFrame(this.renderer, ts);
@@ -49,73 +73,81 @@ Title.prototype.drawFrame = function (ts) {
     this.renderer.drawTitleFrame(this);
 };
 
-Title.prototype.startGame = function () {
-    this.game = new Game(this.players);
+Title.prototype.startOptions = function () {
+    this.renderer.generatePlayerSprites(this.players);
+    this.options = new Options(this.opts);
 };
 
-Title.prototype.onMove = function (player, dir) {
+Title.prototype.startGame = function () {
+    this.renderer.generatePlayerSprites(this.players);
+    this.game = new Game(this.players, this.opts.timer);
+};
+
+Title.prototype.changeOpt = function () {
+    this.currentOpt = 1 - this.currentOpt;
+};
+
+Title.prototype.changeColor = function (side, dir) {
     if (dir === 0) {
-        this.playerColorIndices[player] += 4;
+        this.playerColorIndices[side] += 4;
     }
     else if (dir === 2) {
-        this.playerColorIndices[player] += 1;
+        this.playerColorIndices[side] += 1;
     }
-    this.playerColorIndices[player] %= 5;
-    this.players[player].color = this.playerColors[player][this.playerColorIndices[player]];
+    this.playerColorIndices[side] %= 5;
+    this.players[side].color = this.playerColors[side][this.playerColorIndices[side]];
 };
 
 Title.prototype.onKeyDown = function (e) {
-    // Escape key overrides game key events.
+    // Escape (Overrides subscreen key events)
     if (e.keyCode === 27) {
-        // End game.
-        this.game = null;
+        if (this.game) {
+            // End any subscreens.
+            this.game = null;
 
-        // Reset player scores.
-        this.players.forEach(function (player) {
-            player.score = 0;
-        });
+            // Reset player scores.
+            this.players.forEach(function (player) {
+                player.score = 0;
+            });
+        }
     }
 
-    // Game key events.
+    // Subscreen key events.
+    if (this.options) {
+        return this.options.onKeyDown(e);
+    }
     if (this.game) {
         return this.game.onKeyDown(e);
     }
 
     // Title key events.
-    if (e.keyCode === 13) {
-        // Enter
-        this.startGame();
+    if (e.keyCode === 13 || e.keyCode === 32) {
+        // Enter/Space
+        if (this.currentOpt === 0) {
+            this.startGame();
+        }
+        else if (this.currentOpt === 1) {
+            this.startOptions();
+        }
+    }
+    else if (e.keyCode === 87 || e.keyCode === 38 || e.keyCode === 83 || e.keyCode === 40) {
+        // up/down
+        this.changeOpt();
     }
     else if (e.keyCode === 65) {
         // 1 left
-        this.onMove(0, 0);
-    }
-    else if (e.keyCode === 87) {
-        // 1 up
-        this.onMove(0, 1);
+        this.changeColor(0, 0);
     }
     else if (e.keyCode === 68) {
         // 1 right
-        this.onMove(0, 2);
-    }
-    else if (e.keyCode === 83) {
-        // 1 down
-        this.onMove(0, 3);
+        this.changeColor(0, 2);
     }
     else if (e.keyCode === 37) {
         // 2 left
-        this.onMove(1, 0);
-    }
-    else if (e.keyCode === 38) {
-        // 2 up
-        this.onMove(1, 1);
+        this.changeColor(1, 0);
     }
     else if (e.keyCode === 39) {
         // 2 right
-        this.onMove(1, 2);
-    }
-    else if (e.keyCode === 40) {
-        // 2 down
-        this.onMove(1, 3);
+        this.changeColor(1, 2);
     }
 };

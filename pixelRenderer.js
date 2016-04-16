@@ -11,7 +11,7 @@ var Renderer = function (canvas) {
 
     this.images = {};
     this.imagesLoaded = false;
-    var imageFiles = ['title', 'titleBack', 'player', 'gameBack'];
+    var imageFiles = ['title', 'titleBack', 'player', 'gameBack', 'options', 'optionsBack'];
     for (var img in imageFiles) {
         var image = new Image();
         image.src = './' + imageFiles[img] + '.png';
@@ -24,6 +24,9 @@ var Renderer = function (canvas) {
     }
 };
 
+
+// Title screen
+
 Renderer.prototype.drawTitleFrame = function (title) {
     if (!this.titleSprite) {
         this.generateTitleSprites();
@@ -35,11 +38,16 @@ Renderer.prototype.drawTitleFrame = function (title) {
     // Draw title.
     this.drawTitle(title.playerColors, title.playerColorIndices);
 
-    // Draw color selection.
-    this.drawColorSelection(title.playerColors, title.playerColorIndices);
+    // Draw options.
+    this.c.drawImage(this.images.title, title.currentOpt === 0 ? 32 : 0, 31, 14, 5, 25, 38, 14, 5);
+    this.c.drawImage(this.images.title, title.currentOpt === 1 ? 47 : 15, 31, 16, 6, 24, 45, 16, 6);
 
     // Draw controls.
-    this.c.drawImage(this.images.title, 0, 50, 64, 12, 0, 50, 64, 12);
+    this.c.drawImage(this.images.title, 4, 50, 13, 12, 4, 50, 13, 12);
+    this.c.drawImage(this.images.title, title.opts.twoPlayer ? 47 : 26, 50, 13, 12, 47, 50, 13, 12);
+
+    // Draw color selection.
+    this.drawColorSelection(title.playerColors, title.playerColorIndices);
 };
 
 Renderer.prototype.generateTitleSprites = function () {
@@ -107,6 +115,60 @@ Renderer.prototype.drawColorSelection = function (playerColors, playerColorIndic
         }
     }, this);
 };
+
+
+// Options screen
+
+Renderer.prototype.drawOptionsFrame = function (options) {
+    // Fill canvas with background.
+    this.c.drawImage(this.images.optionsBack, 0, 0);
+
+    // Create canvas for selected elements.
+    if (!this.selectedOptions) {
+        this.generateSelectedOptionsSprite();
+    }
+
+    // Draw players option.
+    this.c.drawImage(options.currentOpt === 0 ? this.selectedOptions : this.images.options, 8, 8, 34, 7, 8, 8, 34, 7);
+    this.c.drawImage(options.currentOpt === 0 ? this.selectedOptions : this.images.options, options.opts.twoPlayer ? 52 : 47, 8, 4, 7, 52, 8, 4, 7);
+
+    // Draw nodes option.
+    this.c.drawImage(options.currentOpt === 1 ? this.selectedOptions : this.images.options, 8, 22, 24, 7, 8, 22, 24, 7);
+    options.opts.nodes.forEach(function (nodes, side) {
+        for (var i = 0; i < nodes; i++) {
+            this.drawNode(8 + i * 4, 31 + side * 5, side);
+        }
+    }, this);
+
+    // Draw timer option.
+    this.c.drawImage(options.currentOpt === 2 ? this.selectedOptions : this.images.options, 8, 44, 23, 7, 8, 44, 23, 7);
+    var timerWidth = options.opts.timer * 5 - 2;
+    this.c.drawImage(options.currentOpt === 2 ? this.selectedOptions : this.images.options, 8, 53, timerWidth, 3, 8, 53, timerWidth, 3);
+};
+
+Renderer.prototype.generateSelectedOptionsSprite = function () {
+    // Create mask and fill with color.
+    var selectedMask = document.createElement('canvas');
+    selectedMask.width = 64;
+    selectedMask.height = 64;
+    var selectedMaskCtx = selectedMask.getContext('2d');
+    selectedMaskCtx.drawImage(this.images.options, 0, 0);
+    selectedMaskCtx.globalCompositeOperation = 'source-atop';
+    selectedMaskCtx.fillStyle = '#d5ff00';
+    selectedMaskCtx.fillRect(0, 0, 64, 64);
+
+    // Create sprite and apply masked color.
+    this.selectedOptions = document.createElement('canvas');
+    this.selectedOptions.width = 64;
+    this.selectedOptions.height = 64;
+    var selectedCtx = this.selectedOptions.getContext('2d');
+    selectedCtx.drawImage(this.images.options, 0, 0);
+    selectedCtx.globalCompositeOperation = 'color';
+    selectedCtx.drawImage(selectedMask, 0, 0);
+};
+
+
+// Game screen
 
 Renderer.prototype.drawGameFrame = function (game) {
     // Fill canvas with background.
@@ -232,12 +294,15 @@ Renderer.prototype.drawGameoverScreen = function (side, players) {
     var gameoverCtx = this.gameoverSprite.getContext('2d');
 
     if (side === null) {
-        gameoverCtx.drawImage(this.images.title, 5, 35, 54, 15, 0, 0, 54, 15);
+        // Draw deadlock message.
+        gameoverCtx.drawImage(this.images.title, 5, 37, 54, 12, 0, 2, 54, 12);
     }
     else {
+        // Draw winner message.
         gameoverCtx.drawImage(this.playerSprites[side], 5, 49, 54, 15, 0, 0, 54, 15);
     }
 
+    // Flicker message.
     if (this.getFrameOffset(100, 2)) {
         gameoverCtx.globalCompositeOperation = 'source-atop';
         gameoverCtx.drawImage(this.gameoverMask, 0, 0);
@@ -245,6 +310,7 @@ Renderer.prototype.drawGameoverScreen = function (side, players) {
 
     this.c.drawImage(this.gameoverSprite, 5, 22, 54, 15);
 
+    // Draw scores.
     players.forEach(function (player) {
         this.drawNumber(player.side ? 49 : 10, 43, player.score, player.side);
     }, this);
