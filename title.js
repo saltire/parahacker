@@ -99,6 +99,11 @@ Title.prototype.changeColor = function (side, dir) {
 };
 
 Title.prototype.onKeyDown = function (e) {
+    // Disable default function on arrow keys.
+    if ([37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+        e.preventDefault();
+    }
+
     // Escape (Overrides subscreen key events)
     if (e.keyCode === 27) {
         if (this.game) {
