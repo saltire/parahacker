@@ -1,10 +1,11 @@
 # parahacker
 A clone of the hacking minigame from [Paradroid](https://en.wikipedia.org/wiki/Paradroid),
 using the HTML5 canvas API.
-This version is for two players.
+This version is for one or two players.
 
 ### Playing
 Open either `index.html` or `pixels.html` in your browser.
+Or, run `npm install` followed by `gulp` and open `dist/index.html`.
 
 There are twelve lights in the center of the screen.
 The object of the game is to switch as many of them to your colour as possible
@@ -28,7 +29,9 @@ Player 2:
 `↓` Move node down  
 `←` Use node  
 
-`Esc` Restart
+`Esc` Return to menu
+
+When a round is over, press any key to start a new round.
 
 ### Notes
 I started this game as a way of learning the HTML5 canvas API, using a simple vector-based layout.
@@ -37,9 +40,10 @@ a game jam with a 64x64 pixel restriction.
 Realizing this would probably fit nicely, I made an alternate version with a pixel layout.
 The two versions share the same underlying game code, but each has its own renderer.
 
+Currently the vector renderer is out of date,
+as I had to prioritize the pixel renderer for the jam. :)
+
 ### To do
-- Title and game over screens
 - Sound effects
 - Node repeaters / colour switchers
-- Custom player colours
-- AI for computer opponent
+- Smarter AI
