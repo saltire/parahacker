@@ -12,6 +12,7 @@ var Title = function (rendererCls, canvas) {
             side: 0
         },
         {
+            ai: true,
             color: this.playerColors[1][this.playerColorIndices[1]],
             nodes: 5,
             score: 0,

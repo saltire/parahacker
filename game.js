@@ -7,6 +7,7 @@ var Game = function (players) {
     this.cooldownLength = 1500;
 
     this.nodeLifetime = 4000;
+    this.aiActionCooldown = 100;
 
     this.players = players.map(function (player) {
         return new Player(this, player);
@@ -34,13 +35,33 @@ Game.prototype.drawFrame = function (renderer, ts) {
     else if (this.ts < this.warmupLength + this.gameLength) {
         this.stage = 'game';
         this.timer = Math.max(this.warmupLength + this.gameLength - this.ts, 0) / this.gameLength;
+
+        // Move AI players, if any.
+        this.players.forEach(function (player) {
+            if (player.ai) {
+                player.actionCooldown -= delta;
+                if (player.actionCooldown <= 0) {
+                    player.pickAiAction();
+                }
+            }
+        });
     }
     else if (this.ts < this.warmupLength + this.gameLength + this.cooldownLength) {
         this.stage = 'cooldown';
         this.timer = 0;
+
+        // Remove unused nodes from rows.
         this.players.forEach(function (player) {
             player.currentRow = -1;
         });
+
+        // If there is a winner, increment their score.
+        if (!this.addedScore) {
+            this.addedScore = true;
+            if (this.topLight !== null) {
+                this.players[this.topLight].score++;
+            }
+        }
     }
     else {
         this.stage = 'gameover';
@@ -56,14 +77,6 @@ Game.prototype.drawFrame = function (renderer, ts) {
         this.updateRowLight(row);
     }
     this.updateTopLight();
-
-    // If there is a winner, increment their score.
-    if (this.stage === 'cooldown' && !this.addedScore) {
-        this.addedScore = true;
-        if (this.topLight !== null) {
-            this.players[this.topLight].score++;
-        }
-    }
 
     renderer.drawGameFrame(this);
 };
@@ -138,18 +151,18 @@ Game.prototype.onKeyDown = function (e) {
         // 1 down
         this.players[0].move(3);
     }
-    else if (e.keyCode === 37) {
+    else if (e.keyCode === 37 && !this.players[1].ai) {
         // 2 left
         this.players[1].selectRow();
     }
-    else if (e.keyCode === 38) {
+    else if (e.keyCode === 38 && !this.players[1].ai) {
         // 2 up
         this.players[1].move(1);
     }
     else if (e.keyCode === 39) {
         // 2 right
     }
-    else if (e.keyCode === 40) {
+    else if (e.keyCode === 40 && !this.players[1].ai) {
         // 2 down
         this.players[1].move(3);
     }
@@ -160,13 +173,16 @@ Game.prototype.onKeyDown = function (e) {
 
 var Player = function (game, opts) {
     this.game = game;
+    this.ai = opts.ai;
     this.color = opts.color;
+    this.initialNodes = opts.nodes;
     this.nodes = opts.nodes;
     this.score = opts.score;
     this.side = opts.side;
     this.wires = [];
     this.wireAtRow = [];
     this.currentRow = -1;
+    this.actionCooldown = 0;
 
     var wirePool = [];
     wireTypes.forEach(function (wireType) {
@@ -208,6 +224,57 @@ Player.prototype.checkNodes = function (delta) {
             }
         }, this);
     }, this);
+};
+
+Player.prototype.pickAiAction = function () {
+    // Find the number of lights connected to this row, and how many are the other player's color.
+    var endRows = 0;
+    var enemyEndRows = 0;
+    if (this.currentRow > -1) {
+        var wire = this.wireAtRow[this.currentRow];
+        var wireRow = this.currentRow - wire.topRow;
+        for (endRow in wire.type.endRows) {
+            if (wire.type.endRows[endRow].indexOf(wireRow) > -1) {
+                endRows++;
+                if (this.game.rowLights[wire.topRow + Number(endRow)] !== this.side) {
+                    enemyEndRows++;
+                }
+            }
+        }
+    }
+
+    var actions = [
+        {
+            // Move up
+            action: this.move.bind(this, 1),
+            weight: 1
+        },
+        {
+            // Move down
+            action: this.move.bind(this, 3),
+            weight: 15
+        },
+        {
+            // Use node
+            action: this.selectRow.bind(this),
+            weight: (this.currentRow === -1 || wire.nodes[wireRow]) ? 0 :
+                (1 + endRows * 2 + enemyEndRows * 15)
+        },
+        {
+            // Do nothing
+            action: function () {},
+            weight: 15 - this.initialNodes
+        }
+    ];
+
+    var actionPool = [];
+    actions.forEach(function (action, j) {
+        for (i = 0; i < action.weight; i++) {
+            actionPool.push(action);
+        }
+    });
+    actionPool[Math.floor(Math.random() * actionPool.length)].action();
+    this.actionCooldown = this.game.aiActionCooldown;
 };
 
 Player.prototype.move = function (dir) {

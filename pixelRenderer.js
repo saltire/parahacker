@@ -273,7 +273,7 @@ Renderer.prototype.drawPlayerSide = function (player) {
 
     // Draw node area.
     for (var i = 0; i < player.nodes; i++) {
-        this.drawNode(5 + i * 4, 5, player.side);
+        this.drawNode(5 + (i % 5) * 4, 5 + Math.floor(i / 5) * 4, player.side);
     }
 
     // Draw wires.
