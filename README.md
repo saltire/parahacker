@@ -1,4 +1,7 @@
 # parahacker
+
+![ParaHacker](./images/animation.gif?raw=true)
+
 A clone of the hacking minigame from [Paradroid](https://en.wikipedia.org/wiki/Paradroid),
 using the HTML5 canvas API.
 This version is for one or two players.
@@ -17,6 +20,16 @@ Move a node up and down to select a wire, then use the node to power that wire.
 
 Some wires can power multiple lights; some lights require multiple powered wires.
 Nodes only last for a few seconds before burning out, so use them wisely.
+
+### Options
+
+Players: You can play with one player against the computer, or two players against each other.
+
+Nodes: Use `A` `D` and `←` `→` to set the number of nodes each player starts with.
+This way you can balance a game between two players of different skill levels
+(including the computer).
+
+Timer: Set the length of a round, anywhere between 2(!) and 20 seconds.
 
 ### Controls
 Player 1:  
