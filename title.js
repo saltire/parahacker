@@ -2,7 +2,7 @@ var Title = function (rendererCls, canvas) {
     this.currentOpt = 0;
 
     this.opts = {
-        twoPlayer: true,
+        twoPlayer: false,
         nodes: [5, 5],
         timer: 5
     };
