@@ -177,13 +177,19 @@ Renderer.prototype.drawTimer = function (game) {
     this.c.fillRect(0, 0, 64, 1);
     this.c.fillRect(0, 63, 64, 1);
 
-    var timerLength;
     if (game.stage === 'warmup' || game.stage === 'game') {
         // Fill a percentage of the timer bar.
-        timerLength = Math.round(32 * game.timer);
+        var timerLength = 32 * game.timer;
+        var timerLengthInt = Math.ceil(32 * game.timer);
+        var frame = Math.floor((timerLengthInt - timerLength) * 5);
         this.c.fillStyle = '#fff';
-        this.c.fillRect(32 - timerLength, 0, timerLength * 2, 1);
-        this.c.fillRect(32 - timerLength, 63, timerLength * 2, 1);
+        this.c.globalAlpha = 1 - frame / 5;
+        this.c.fillRect(32 - timerLengthInt, 0, timerLengthInt * 2, 1);
+        this.c.fillRect(32 - timerLengthInt, 63, timerLengthInt * 2, 1);
+        timerLengthInt -= 1;
+        this.c.globalAlpha = 1;
+        this.c.fillRect(32 - timerLengthInt, 0, timerLengthInt * 2, 1);
+        this.c.fillRect(32 - timerLengthInt, 63, timerLengthInt * 2, 1);
     }
     else if (game.topLight !== null) {
         // Fill the timer bar with the color of the winning player.
