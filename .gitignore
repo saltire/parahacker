@@ -1,3 +1,4 @@
-dist/*.js
-dist/*.png
+dist/**/*.js
+dist/**/*.png
+dist/**/*.wav
 node_modules

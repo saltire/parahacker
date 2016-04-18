@@ -25,7 +25,14 @@ Game.prototype.drawFrame = function (renderer, ts) {
 
     // Set game stage and calculate timer.
     if (this.ts < this.warmupLength) {
-        this.stage = 'warmup';
+        if (!this.stage) {
+            this.stage = 'warmup';
+
+            // Play a sound.
+            var warmupSound = new Audio('./sounds/warmup.wav');
+            warmupSound.play();
+        }
+
         this.timer = this.ts / this.warmupLength;
     }
     else if (this.ts < this.warmupLength + this.gameLength) {
@@ -43,29 +50,38 @@ Game.prototype.drawFrame = function (renderer, ts) {
         });
     }
     else if (this.ts < this.warmupLength + this.gameLength + this.cooldownLength) {
-        this.stage = 'cooldown';
-        this.timer = 0;
+        if (this.stage === 'game') {
+            this.stage = 'cooldown';
+            this.timer = 0;
 
-        // Remove unused nodes from rows.
-        this.players.forEach(function (player) {
-            player.currentRow = -1;
-        });
+            // Remove unused nodes from rows.
+            this.players.forEach(function (player) {
+                player.currentRow = -1;
+            });
 
-        // If there is a winner, increment their score.
-        if (!this.addedScore) {
-            this.addedScore = true;
+            // If there is a winner, increment their score.
             if (this.topLight !== null) {
                 this.players[this.topLight].score++;
             }
+
+            // Play a sound.
+            var cooldownSound = new Audio('./sounds/cooldown.wav');
+            cooldownSound.play();
         }
     }
     else {
-        this.stage = 'gameover';
+        if (this.stage === 'cooldown') {
+            this.stage = 'gameover';
 
-        // Remove any remaining active nodes.
-        this.players.forEach(function (player) {
-            player.removeNodes();
-        });
+            // Remove any remaining active nodes.
+            this.players.forEach(function (player) {
+                player.removeNodes();
+            });
+
+            // Play a sound.
+            var deadlockSound = new Audio('./sounds/deadlock.wav');
+            deadlockSound.play();
+        }
     }
 
     // Check for expired nodes.
@@ -326,4 +342,8 @@ Player.prototype.selectRow = function () {
     }
     wire.nodes[wireRow] = this.game.nodeLifetime;
     this.currentRow = -1;
+
+    // Play a sound.
+    var audio = new Audio('./sounds/blip' + this.side + '.wav');
+    audio.play();
 };

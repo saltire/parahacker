@@ -23,4 +23,9 @@ gulp.task('images', function () {
         .pipe(gulp.dest('dist'));
 });
 
-gulp.task('default', ['build', 'images']);
+gulp.task('sounds', function () {
+    return gulp.src('sounds/*.wav')
+        .pipe(gulp.dest('dist/sounds'));
+});
+
+gulp.task('default', ['build', 'images', 'sounds']);

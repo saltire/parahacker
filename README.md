@@ -57,6 +57,6 @@ Currently the vector renderer is out of date,
 as I had to prioritize the pixel renderer for the jam. :)
 
 ### To do
-- Sound effects
+- Sound effects on/off
 - Node repeaters / colour switchers
 - Smarter AI

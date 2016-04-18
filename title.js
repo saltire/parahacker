@@ -70,6 +70,13 @@ Title.prototype.drawFrame = function (ts) {
         return this.game.drawFrame(this.renderer, ts);
     }
 
+    // Play sound.
+    if (!this.titleSound) {
+        this.titleSound = new Audio('./sounds/drone.wav');
+        this.titleSound.loop = true;
+        this.titleSound.play();
+    }
+
     this.renderer.drawTitleFrame(this);
 };
 
@@ -79,12 +86,22 @@ Title.prototype.startOptions = function () {
 };
 
 Title.prototype.startGame = function () {
+    // Stop sound.
+    if (this.titleSound) {
+        this.titleSound.pause();
+        this.titleSound = null;
+    }
+
     this.renderer.generatePlayerSprites(this.players);
     this.game = new Game(this.players, this.opts.timer);
 };
 
 Title.prototype.changeOpt = function () {
     this.currentOpt = 1 - this.currentOpt;
+
+    // Play a sound.
+    var selectSound = new Audio('./sounds/select.wav');
+    selectSound.play();
 };
 
 Title.prototype.changeColor = function (side, dir) {

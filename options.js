@@ -15,10 +15,18 @@ Options.prototype.changeOpt = function (dir) {
     else if (dir === 3) {
         this.currentOpt = (this.currentOpt + 1) % 3;
     }
+
+    // Play a sound.
+    var selectSound = new Audio('./sounds/select.wav');
+    selectSound.play();
 };
 
 Options.prototype.changePlayers = function () {
     this.opts.twoPlayer = !this.opts.twoPlayer;
+
+    // Play a sound.
+    var selectSound = new Audio('./sounds/select2.wav');
+    selectSound.play();
 };
 
 Options.prototype.changeNodes = function (dir, side) {
@@ -28,6 +36,10 @@ Options.prototype.changeNodes = function (dir, side) {
     else if (dir === 2) {
         this.opts.nodes[side] = Math.min(10, this.opts.nodes[side] + 1);
     }
+
+    // Play a sound.
+    var selectSound = new Audio('./sounds/select2.wav');
+    selectSound.play();
 };
 
 Options.prototype.changeTimer = function (dir) {
@@ -37,6 +49,10 @@ Options.prototype.changeTimer = function (dir) {
     else if (dir === 2) {
         this.opts.timer = Math.min(10, this.opts.timer + 1);
     }
+
+    // Play a sound.
+    var selectSound = new Audio('./sounds/select2.wav');
+    selectSound.play();
 };
 
 Options.prototype.onKeyDown = function (e) {
