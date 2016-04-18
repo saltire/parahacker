@@ -196,8 +196,6 @@ var Player = function (game, opts) {
     this.nodes = opts.nodes;
     this.score = opts.score;
     this.side = opts.side;
-    this.wires = [];
-    this.wireAtRow = [];
     this.currentRow = -1;
     this.actionCooldown = 0;
 
@@ -208,7 +206,19 @@ var Player = function (game, opts) {
         }
     });
 
+    this.wires = this.generateWires(wirePool);
+    this.wireAtRow = [];
+    this.wires.forEach(function (wire) {
+        for (var i = 0; i < wire.type.rows; i++) {
+            this.wireAtRow.push(wire);
+        }
+    }, this);
+};
+
+Player.prototype.generateWires = function (wirePool) {
+    var wires = [];
     var row = 0;
+    var endRows = 0;
     while (row < 12) {
         var wireType = wirePool[Math.floor(Math.random() * wirePool.length)];
         if (row + wireType.rows <= 12) {
@@ -219,14 +229,13 @@ var Player = function (game, opts) {
                 nodes: Array(wireType.rows)
             };
 
-            this.wires.push(wire);
-
-            for (var i = 0; i < wireType.rows; i++) {
-                this.wireAtRow.push(wire);
-            }
+            wires.push(wire);
             row += wireType.rows;
+            endRows += Object.keys(wireType.endRows).length;
         }
     }
+
+    return endRows < 7 ? this.generateWires(wirePool) : wires;
 };
 
 Player.prototype.checkNodes = function (delta) {
