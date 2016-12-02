@@ -8,9 +8,7 @@ class Game {
         this.nodeLifetime = 4000;
         this.aiActionCooldown = 100;
 
-        this.players = players.map(function (player) {
-            return new Player(this, player);
-        }, this);
+        this.players = players.map(player => new Player(this, player));
 
         this.rowLights = [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1];
         this.topLight = null;
@@ -21,7 +19,7 @@ class Game {
             this.new = false;
             this.startTs = ts;
         }
-        var delta = ts - this.startTs - this.ts;
+        const delta = ts - this.startTs - this.ts;
         this.ts = ts - this.startTs;
 
         // Set game stage and calculate timer.
@@ -30,7 +28,7 @@ class Game {
                 this.stage = 'warmup';
 
                 // Play a sound.
-                var warmupSound = new Audio('./sounds/warmup.wav');
+                const warmupSound = new Audio('./sounds/warmup.wav');
                 warmupSound.play();
             }
 
@@ -38,10 +36,11 @@ class Game {
         }
         else if (this.ts < this.warmupLength + this.gameLength) {
             this.stage = 'game';
-            this.timer = Math.max(this.warmupLength + this.gameLength - this.ts, 0) / this.gameLength;
+            this.timer = (Math.max(this.warmupLength + this.gameLength - this.ts, 0)
+                / this.gameLength);
 
             // Move AI players, if any.
-            this.players.forEach(function (player) {
+            this.players.forEach((player) => {
                 if (player.ai) {
                     player.actionCooldown -= delta;
                     if (player.actionCooldown <= 0) {
@@ -56,7 +55,7 @@ class Game {
                 this.timer = 0;
 
                 // Remove unused nodes from rows.
-                this.players.forEach(function (player) {
+                this.players.forEach((player) => {
                     player.currentRow = -1;
                 });
 
@@ -66,7 +65,7 @@ class Game {
                 }
 
                 // Play a sound.
-                var cooldownSound = new Audio('./sounds/cooldown.wav');
+                const cooldownSound = new Audio('./sounds/cooldown.wav');
                 cooldownSound.play();
             }
         }
@@ -75,23 +74,23 @@ class Game {
                 this.stage = 'gameover';
 
                 // Remove any remaining active nodes.
-                this.players.forEach(function (player) {
+                this.players.forEach((player) => {
                     player.removeNodes();
                 });
 
                 // Play a sound.
-                var deadlockSound = new Audio('./sounds/deadlock.wav');
+                const deadlockSound = new Audio('./sounds/deadlock.wav');
                 deadlockSound.play();
             }
         }
 
         // Check for expired nodes.
-        this.players.forEach(function (player) {
+        this.players.forEach((player) => {
             player.checkNodes(delta);
-        }, this);
+        });
 
         // Set row light colors.
-        for (var row = 0; row < this.rowLights.length; row++) {
+        for (let row = 0; row < this.rowLights.length; row++) {
             this.updateRowLight(row);
         }
         this.updateTopLight();
@@ -101,13 +100,12 @@ class Game {
 
     updateRowLight(row) {
         // Find out we have input from the wires on each side of this light.
-        var input = this.players.map(function (player) {
-            var wire = player.wireAtRow[row];
-            var wireRow = row - wire.topRow;
+        const input = this.players.map((player) => {
+            const wire = player.wireAtRow[row];
+            const wireRow = row - wire.topRow;
 
-            return wireRow in wire.type.endRows && wire.type.endRows[wireRow].every(function (startRow) {
-                return wire.nodes[startRow];
-            });
+            return wireRow in wire.type.endRows && wire.type.endRows[wireRow]
+                .every(startRow => wire.nodes[startRow]);
         });
 
         // If there are inputs on both sides, flip the color to create a flicker.
@@ -124,8 +122,8 @@ class Game {
     }
 
     updateTopLight() {
-        var counts = [0, 0];
-        this.rowLights.forEach(function (side) {
+        const counts = [0, 0];
+        this.rowLights.forEach((side) => {
             if (side !== null) {
                 counts[side] += 1;
             }
@@ -202,30 +200,30 @@ class Player {
         this.currentRow = -1;
         this.actionCooldown = 0;
 
-        var wirePool = [];
-        wireTypes.forEach(function (wireType) {
-            for (var c = 0; c < (wireType.weight || 1); c++) {
+        const wirePool = [];
+        wireTypes.forEach((wireType) => {
+            for (let c = 0; c < (wireType.weight || 1); c++) {
                 wirePool.push(wireType);
             }
         });
 
         this.wires = this.generateWires(wirePool);
         this.wireAtRow = [];
-        this.wires.forEach(function (wire) {
-            for (var i = 0; i < wire.type.rows; i++) {
+        this.wires.forEach((wire) => {
+            for (let i = 0; i < wire.type.rows; i++) {
                 this.wireAtRow.push(wire);
             }
-        }, this);
+        });
     }
 
     generateWires(wirePool) {
-        var wires = [];
-        var row = 0;
-        var endRows = 0;
+        const wires = [];
+        let row = 0;
+        let endRows = 0;
         while (row < 12) {
-            var wireType = wirePool[Math.floor(Math.random() * wirePool.length)];
+            const wireType = wirePool[Math.floor(Math.random() * wirePool.length)];
             if (row + wireType.rows <= 12) {
-                var wire = {
+                const wire = {
                     side: this.side,
                     topRow: row,
                     type: wireType,
@@ -242,8 +240,8 @@ class Player {
     }
 
     checkNodes(delta) {
-        this.wires.forEach(function (wire) {
-            wire.nodes.forEach(function (node, i) {
+        this.wires.forEach((wire) => {
+            wire.nodes.forEach((node, i) => {
                 if (node) {
                     // Subtract elapsed time from the node lifetime, and remove the node if expired.
                     wire.nodes[i] -= delta;
@@ -256,21 +254,23 @@ class Player {
     }
 
     removeNodes() {
-        this.wires.forEach(function (wire) {
-            wire.nodes.forEach(function (node, i) {
+        this.wires.forEach((wire) => {
+            wire.nodes.forEach((node, i) => {
                 wire.nodes[i] = null;
             });
         });
     }
 
     pickAiAction() {
-        // Find the number of lights connected to this row, and how many are the other player's color.
-        var endRows = 0;
-        var enemyEndRows = 0;
+        // Find the number of lights connected to this row, and how many are other player's color.
+        let endRows = 0;
+        let enemyEndRows = 0;
+        let wire;
+        let wireRow;
         if (this.currentRow > -1) {
-            var wire = this.wireAtRow[this.currentRow];
-            var wireRow = this.currentRow - wire.topRow;
-            for (var endRow in wire.type.endRows) {
+            wire = this.wireAtRow[this.currentRow];
+            wireRow = this.currentRow - wire.topRow;
+            for (let endRow in wire.type.endRows) {
                 if (wire.type.endRows[endRow].indexOf(wireRow) > -1) {
                     endRows++;
                     if (this.game.rowLights[wire.topRow + Number(endRow)] !== this.side) {
@@ -280,7 +280,7 @@ class Player {
             }
         }
 
-        var actions = [
+        const actions = [
             {
                 // Move up
                 action: this.move.bind(this, 1),
@@ -294,19 +294,18 @@ class Player {
             {
                 // Use node
                 action: this.selectRow.bind(this),
-                weight: (this.currentRow === -1 || wire.nodes[wireRow]) ? 0 :
-                    (1 + endRows + enemyEndRows * 20)
+                weight: (!wire || wire.nodes[wireRow]) ? 0 : (1 + endRows + enemyEndRows * 20)
             },
             {
                 // Do nothing
-                action: function () {},
+                action: () => {},
                 weight: 15 - this.initialNodes
             }
         ];
 
-        var actionPool = [];
-        actions.forEach(function (action, j) {
-            for (var i = 0; i < action.weight; i++) {
+        const actionPool = [];
+        actions.forEach((action, j) => {
+            for (let i = 0; i < action.weight; i++) {
                 actionPool.push(action);
             }
         });
@@ -323,6 +322,8 @@ class Player {
             this.nodes -= 1;
         }
 
+        let wire;
+        let wireRow;
         do {
             // Move the current row up or down.
             if (dir === 3) {
@@ -333,8 +334,8 @@ class Player {
             }
 
             // Check if there is a wire starting at this row; if not, keep moving.
-            var wire = this.wireAtRow[this.currentRow];
-            var wireRow = this.currentRow - wire.topRow;
+            wire = this.wireAtRow[this.currentRow];
+            wireRow = this.currentRow - wire.topRow;
         }
         while (wire.type.startRows.indexOf(wireRow) === -1);
     }
@@ -345,8 +346,8 @@ class Player {
             return;
         }
 
-        var wire = this.wireAtRow[this.currentRow];
-        var wireRow = this.currentRow - wire.topRow;
+        const wire = this.wireAtRow[this.currentRow];
+        const wireRow = this.currentRow - wire.topRow;
 
         // Place a node on the row, or abort if there's already a node on the row.
         if (wire.nodes[wireRow]) {
@@ -356,7 +357,7 @@ class Player {
         this.currentRow = -1;
 
         // Play a sound.
-        var audio = new Audio('./sounds/blip' + this.side + '.wav');
+        const audio = new Audio('./sounds/blip' + this.side + '.wav');
         audio.play();
     }
 }

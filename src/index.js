@@ -1,5 +1,5 @@
-var canvas = document.getElementById('game');
-var title = new Title(Renderer, canvas);
+const canvas = document.getElementById('game');
+const title = new Title(Renderer, canvas);
 
 function drawFrame(ts) {
     title.drawFrame(ts);

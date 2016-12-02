@@ -18,7 +18,7 @@ class Options {
         }
 
         // Play a sound.
-        var selectSound = new Audio('./sounds/select.wav');
+        const selectSound = new Audio('./sounds/select.wav');
         selectSound.play();
     }
 
@@ -26,7 +26,7 @@ class Options {
         this.opts.twoPlayer = !this.opts.twoPlayer;
 
         // Play a sound.
-        var selectSound = new Audio('./sounds/select2.wav');
+        const selectSound = new Audio('./sounds/select2.wav');
         selectSound.play();
     }
 
@@ -39,7 +39,7 @@ class Options {
         }
 
         // Play a sound.
-        var selectSound = new Audio('./sounds/select2.wav');
+        const selectSound = new Audio('./sounds/select2.wav');
         selectSound.play();
     }
 
@@ -52,7 +52,7 @@ class Options {
         }
 
         // Play a sound.
-        var selectSound = new Audio('./sounds/select2.wav');
+        const selectSound = new Audio('./sounds/select2.wav');
         selectSound.play();
     }
 

@@ -51,9 +51,9 @@ class Title {
 
                 // Set player options.
                 this.players[1].ai = !this.opts.twoPlayers;
-                this.players.forEach(function (player, side) {
+                this.players.forEach((player, side) => {
                     player.nodes = this.opts.nodes[side];
-                }, this);
+                });
             }
             else {
                 return this.options.drawFrame(this.renderer, ts);
@@ -63,9 +63,9 @@ class Title {
         if (this.game) {
             if (this.game.done) {
                 // Sync player scores with the game.
-                this.players.forEach(function (player, i) {
+                this.players.forEach((player, i) => {
                     player.score = this.game.players[i].score;
-                }, this);
+                });
                 this.startGame();
             }
             return this.game.drawFrame(this.renderer, ts);
@@ -101,7 +101,7 @@ class Title {
         this.currentOpt = 1 - this.currentOpt;
 
         // Play a sound.
-        var selectSound = new Audio('./sounds/select.wav');
+        const selectSound = new Audio('./sounds/select.wav');
         selectSound.play();
     }
 
@@ -129,7 +129,7 @@ class Title {
                 this.game = null;
 
                 // Reset player scores.
-                this.players.forEach(function (player) {
+                this.players.forEach((player) => {
                     player.score = 0;
                 });
             }
