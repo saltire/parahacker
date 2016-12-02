@@ -338,7 +338,8 @@ class Renderer {
 
     drawPlayerSide(player) {
         // Flip the canvas horizontally if we are drawing player 2's side.
-        this.c.setTransform((player.side ? -1 : 1) * this.hscale, 0, 0, this.vscale, player.side ? this.canvas.width : 0, 0);
+        this.c.setTransform((player.side ? -1 : 1) * this.hscale, 0, 0, this.vscale,
+            player.side ? this.canvas.width : 0, 0);
 
         // Draw side bar.
         this.c.drawImage(this.playerSprites[player.side], 1, 1, 4, 58, 0, 3, 4, 58);
@@ -365,7 +366,7 @@ class Renderer {
     };
 
     drawWire(player, wire) {
-        wire.type.render.call(wire, this);
+        wire.type.render(wire, this);
 
         // Draw nodes on all the starting rows that have them.
         wire.type.startRows.forEach((startRow) => {

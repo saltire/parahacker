@@ -125,7 +125,7 @@ Renderer.prototype.drawNode = function (x, y, color) {
 };
 
 Renderer.prototype.drawWire = function (player, wire) {
-    wire.type.render.call(wire, this);
+    wire.type.render(wire, this);
 
     // Draw nodes on all the starting rows that have them.
     wire.type.startRows.forEach(function (startRow) {

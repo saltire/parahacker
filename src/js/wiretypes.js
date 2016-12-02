@@ -7,8 +7,8 @@ const wireTypes = [
             0: [0]
         },
         weight: 10,
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 4, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 4, 0, wire.nodes[0]);
         }
     },
 
@@ -18,9 +18,9 @@ const wireTypes = [
         startRows: [0],
         endRows: {},
         weight: 2,
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 3, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 3, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 3, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 3, 0);
         }
     },
 
@@ -33,18 +33,18 @@ const wireTypes = [
             2: [1]
         },
         weight: 3,
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 1, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 1, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 1, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 1, 0);
 
-            renderer.drawWireSegment(this, 0, 2, 1, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 4, 0, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 4, 2, this.nodes[1]);
+            renderer.drawWireSegment(wire, 0, 2, 1, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 4, 0, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 4, 2, wire.nodes[1]);
 
-            renderer.drawWireSegment(this, 0, 1, 2, this.nodes[2]);
-            renderer.drawDeadEnd(this, 1, 2);
+            renderer.drawWireSegment(wire, 0, 1, 2, wire.nodes[2]);
+            renderer.drawDeadEnd(wire, 1, 2);
 
-            renderer.drawSplitter(this, 2, 1);
+            renderer.drawSplitter(wire, 2, 1);
         }
     },
 
@@ -56,18 +56,18 @@ const wireTypes = [
             0: [1],
             2: [1]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 2, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 2, 0);
 
-            renderer.drawWireSegment(this, 0, 3, 1, this.nodes[1]);
-            renderer.drawWireSegment(this, 3, 4, 0, this.nodes[1]);
-            renderer.drawWireSegment(this, 3, 4, 2, this.nodes[1]);
+            renderer.drawWireSegment(wire, 0, 3, 1, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 3, 4, 0, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 3, 4, 2, wire.nodes[1]);
 
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
-            renderer.drawDeadEnd(this, 2, 2);
+            renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
+            renderer.drawDeadEnd(wire, 2, 2);
 
-            renderer.drawSplitter(this, 3, 1);
+            renderer.drawSplitter(wire, 3, 1);
         }
     },
 
@@ -78,19 +78,19 @@ const wireTypes = [
         endRows: {
             2: [1]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 1, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 1, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 1, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 1, 0);
 
-            renderer.drawWireSegment(this, 0, 2, 1, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 3, 0, this.nodes[1]);
-            renderer.drawDeadEnd(this, 3, 0);
-            renderer.drawWireSegment(this, 2, 4, 2, this.nodes[1]);
+            renderer.drawWireSegment(wire, 0, 2, 1, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 3, 0, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 3, 0);
+            renderer.drawWireSegment(wire, 2, 4, 2, wire.nodes[1]);
 
-            renderer.drawWireSegment(this, 0, 1, 2, this.nodes[2]);
-            renderer.drawDeadEnd(this, 1, 2);
+            renderer.drawWireSegment(wire, 0, 1, 2, wire.nodes[2]);
+            renderer.drawDeadEnd(wire, 1, 2);
 
-            renderer.drawSplitter(this, 2, 1);
+            renderer.drawSplitter(wire, 2, 1);
         }
     },
 
@@ -101,19 +101,19 @@ const wireTypes = [
         endRows: {
             0: [1]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 1, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 1, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 1, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 1, 0);
 
-            renderer.drawWireSegment(this, 0, 2, 1, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 4, 0, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 3, 2, this.nodes[1]);
-            renderer.drawDeadEnd(this, 3, 2);
+            renderer.drawWireSegment(wire, 0, 2, 1, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 4, 0, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 3, 2, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 3, 2);
 
-            renderer.drawWireSegment(this, 0, 1, 2, this.nodes[2]);
-            renderer.drawDeadEnd(this, 1, 2);
+            renderer.drawWireSegment(wire, 0, 1, 2, wire.nodes[2]);
+            renderer.drawDeadEnd(wire, 1, 2);
 
-            renderer.drawSplitter(this, 2, 1);
+            renderer.drawSplitter(wire, 2, 1);
         }
     },
 
@@ -125,17 +125,17 @@ const wireTypes = [
             1: [0, 2]
         },
         weight: 3,
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
 
-            renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 1, 1);
+            renderer.drawWireSegment(wire, 0, 1, 1, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 1, 1);
 
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+            renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 2, 4, 1, this.nodes[0] && this.nodes[2]);
+            renderer.drawWireSegment(wire, 2, 4, 1, wire.nodes[0] && wire.nodes[2]);
 
-            renderer.drawSplitter(this, 2, 1, true);
+            renderer.drawSplitter(wire, 2, 1, true);
         }
     },
 
@@ -147,17 +147,17 @@ const wireTypes = [
         endRows: {
             1: [0, 2]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 3, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 3, 0, wire.nodes[0]);
 
-            renderer.drawWireSegment(this, 0, 2, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 2, 1);
+            renderer.drawWireSegment(wire, 0, 2, 1, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 2, 1);
 
-            renderer.drawWireSegment(this, 0, 3, 2, this.nodes[2]);
+            renderer.drawWireSegment(wire, 0, 3, 2, wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 3, 4, 1, this.nodes[0] && this.nodes[2]);
+            renderer.drawWireSegment(wire, 3, 4, 1, wire.nodes[0] && wire.nodes[2]);
 
-            renderer.drawSplitter(this, 3, 1, true);
+            renderer.drawSplitter(wire, 3, 1, true);
         }
     },
 
@@ -166,18 +166,18 @@ const wireTypes = [
     //     rows: 3,
     //     startRows: [0, 1, 2],
     //     endRows: {},
-    //     render(renderer) {
-    //         renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+    //     render(wire, renderer) {
+    //         renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
     //
-    //         renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-    //         renderer.drawDeadEnd(this, 1, 1);
+    //         renderer.drawWireSegment(wire, 0, 1, 1, wire.nodes[1]);
+    //         renderer.drawDeadEnd(wire, 1, 1);
     //
-    //         renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+    //         renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
     //
-    //         renderer.drawWireSegment(this, 2, 3, 1, this.nodes[0] && this.nodes[2]);
-    //         renderer.drawDeadEnd(this, 3, 1);
+    //         renderer.drawWireSegment(wire, 2, 3, 1, wire.nodes[0] && wire.nodes[2]);
+    //         renderer.drawDeadEnd(wire, 3, 1);
     //
-    //         renderer.drawSplitter(this, 2, 1, true);
+    //         renderer.drawSplitter(wire, 2, 1, true);
     //     }
     // },
 
@@ -188,20 +188,20 @@ const wireTypes = [
         endRows: {
             1: [1]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 1, 0, this.nodes[0]);
-            renderer.drawDeadEnd(this, 1, 0);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 1, 0, wire.nodes[0]);
+            renderer.drawDeadEnd(wire, 1, 0);
 
-            renderer.drawWireSegment(this, 0, 2, 1, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 3, 0, this.nodes[1]);
-            renderer.drawWireSegment(this, 2, 3, 2, this.nodes[1]);
-            renderer.drawWireSegment(this, 3, 4, 1, this.nodes[1]);
+            renderer.drawWireSegment(wire, 0, 2, 1, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 3, 0, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 2, 3, 2, wire.nodes[1]);
+            renderer.drawWireSegment(wire, 3, 4, 1, wire.nodes[1]);
 
-            renderer.drawWireSegment(this, 0, 1, 2, this.nodes[2]);
-            renderer.drawDeadEnd(this, 1, 2);
+            renderer.drawWireSegment(wire, 0, 1, 2, wire.nodes[2]);
+            renderer.drawDeadEnd(wire, 1, 2);
 
-            renderer.drawSplitter(this, 2, 1);
-            renderer.drawSplitter(this, 3, 1, true);
+            renderer.drawSplitter(wire, 2, 1);
+            renderer.drawSplitter(wire, 3, 1, true);
         }
     },
 
@@ -213,20 +213,20 @@ const wireTypes = [
             0: [0, 2],
             2: [0, 2]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
 
-            renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 1, 1);
+            renderer.drawWireSegment(wire, 0, 1, 1, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 1, 1);
 
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+            renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 2, 3, 1, this.nodes[0] && this.nodes[2]);
-            renderer.drawWireSegment(this, 3, 4, 0, this.nodes[0] && this.nodes[2]);
-            renderer.drawWireSegment(this, 3, 4, 2, this.nodes[0] && this.nodes[2]);
+            renderer.drawWireSegment(wire, 2, 3, 1, wire.nodes[0] && wire.nodes[2]);
+            renderer.drawWireSegment(wire, 3, 4, 0, wire.nodes[0] && wire.nodes[2]);
+            renderer.drawWireSegment(wire, 3, 4, 2, wire.nodes[0] && wire.nodes[2]);
 
-            renderer.drawSplitter(this, 2, 1, true);
-            renderer.drawSplitter(this, 3, 1);
+            renderer.drawSplitter(wire, 2, 1, true);
+            renderer.drawSplitter(wire, 3, 1);
         }
     },
 
@@ -237,22 +237,22 @@ const wireTypes = [
         endRows: {
             2: [0, 2, 3]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
 
-            renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 1, 1);
+            renderer.drawWireSegment(wire, 0, 1, 1, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 1, 1);
 
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+            renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 2, 3, 1, this.nodes[0] && this.nodes[2]);
+            renderer.drawWireSegment(wire, 2, 3, 1, wire.nodes[0] && wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 0, 3, 3, this.nodes[3]);
+            renderer.drawWireSegment(wire, 0, 3, 3, wire.nodes[3]);
 
-            renderer.drawWireSegment(this, 3, 4, 2, this.nodes[0] && this.nodes[2] && this.nodes[3]);
+            renderer.drawWireSegment(wire, 3, 4, 2, wire.nodes[0] && wire.nodes[2] && wire.nodes[3]);
 
-            renderer.drawSplitter(this, 2, 1, true);
-            renderer.drawSplitter(this, 3, 2, true);
+            renderer.drawSplitter(wire, 2, 1, true);
+            renderer.drawSplitter(wire, 3, 2, true);
         }
     },
 
@@ -266,32 +266,32 @@ const wireTypes = [
             4: [4],
             5: [4]
         },
-        render(renderer) {
-            renderer.drawWireSegment(this, 0, 2, 0, this.nodes[0]);
+        render(wire, renderer) {
+            renderer.drawWireSegment(wire, 0, 2, 0, wire.nodes[0]);
 
-            renderer.drawWireSegment(this, 0, 1, 1, this.nodes[1]);
-            renderer.drawDeadEnd(this, 1, 1);
+            renderer.drawWireSegment(wire, 0, 1, 1, wire.nodes[1]);
+            renderer.drawDeadEnd(wire, 1, 1);
 
-            renderer.drawWireSegment(this, 0, 2, 2, this.nodes[2]);
+            renderer.drawWireSegment(wire, 0, 2, 2, wire.nodes[2]);
 
-            renderer.drawWireSegment(this, 2, 4, 1, this.nodes[0] && this.nodes[2]);
+            renderer.drawWireSegment(wire, 2, 4, 1, wire.nodes[0] && wire.nodes[2]);
 
-            renderer.drawSplitter(this, 2, 1, true);
+            renderer.drawSplitter(wire, 2, 1, true);
 
-            renderer.drawWireSegment(this, 0, 1, 3, this.nodes[3]);
-            renderer.drawDeadEnd(this, 1, 3);
+            renderer.drawWireSegment(wire, 0, 1, 3, wire.nodes[3]);
+            renderer.drawDeadEnd(wire, 1, 3);
 
-            renderer.drawWireSegment(this, 0, 2, 4, this.nodes[4]);
-            renderer.drawWireSegment(this, 2, 3, 3, this.nodes[4]);
-            renderer.drawWireSegment(this, 3, 4, 2, this.nodes[4]);
-            renderer.drawWireSegment(this, 3, 4, 4, this.nodes[4]);
-            renderer.drawWireSegment(this, 2, 4, 5, this.nodes[4]);
+            renderer.drawWireSegment(wire, 0, 2, 4, wire.nodes[4]);
+            renderer.drawWireSegment(wire, 2, 3, 3, wire.nodes[4]);
+            renderer.drawWireSegment(wire, 3, 4, 2, wire.nodes[4]);
+            renderer.drawWireSegment(wire, 3, 4, 4, wire.nodes[4]);
+            renderer.drawWireSegment(wire, 2, 4, 5, wire.nodes[4]);
 
-            renderer.drawWireSegment(this, 0, 1, 5, this.nodes[5]);
-            renderer.drawDeadEnd(this, 1, 5);
+            renderer.drawWireSegment(wire, 0, 1, 5, wire.nodes[5]);
+            renderer.drawDeadEnd(wire, 1, 5);
 
-            renderer.drawSplitter(this, 2, 4);
-            renderer.drawSplitter(this, 3, 3);
+            renderer.drawSplitter(wire, 2, 4);
+            renderer.drawSplitter(wire, 3, 3);
         }
     }
 ];
