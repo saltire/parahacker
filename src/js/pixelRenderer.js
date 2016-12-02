@@ -14,7 +14,7 @@ var Renderer = function (canvas) {
     var imageFiles = ['title', 'titleBack', 'player', 'gameBack', 'options', 'optionsBack'];
     for (var img in imageFiles) {
         var image = new Image();
-        image.src = './' + imageFiles[img] + '.png';
+        image.src = './img/' + imageFiles[img] + '.png';
         image.onload = function (img, image) {
             this.images[imageFiles[img]] = image;
             if (Object.keys(this.images).length === imageFiles.length) {

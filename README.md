@@ -6,10 +6,10 @@ A clone of the hacking minigame from [Paradroid](https://en.wikipedia.org/wiki/P
 using the HTML5 canvas API.
 This version is for one or two players.
 
-### Playing
-Open either `index.html` or `pixels.html` in your browser.
-Or, run `npm install` followed by `gulp` and open `dist/index.html`.
+### Install and run
+Run `npm install` followed by `gulp` and open `dist/index.html`.
 
+### Play
 There are twelve lights in the center of the screen.
 The object of the game is to switch as many of them to your colour as possible
 before the timer runs out. You have ten seconds!
@@ -22,7 +22,6 @@ Some wires can power multiple lights; some lights require multiple powered wires
 Nodes only last for a few seconds before burning out, so use them wisely.
 
 ### Options
-
 Players: You can play with one player against the computer, or two players against each other.
 
 Nodes: Use `A` `D` and `←` `→` to set the number of nodes each player starts with.
