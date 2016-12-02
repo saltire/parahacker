@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var babel = require('gulp-babel');
 var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 
@@ -10,6 +11,7 @@ gulp.task('html', function () {
 
 gulp.task('js', function () {
     return gulp.src(['./src/js/*.js', './src/index.js'])
+        .pipe(babel({presets: ['es2015']}))
         .pipe(concat('game.min.js'))
         .pipe(uglify())
         .pipe(gulp.dest('./dist'));
