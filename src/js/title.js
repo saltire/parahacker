@@ -50,7 +50,7 @@ class Title {
                 this.currentOpt = 0;
 
                 // Set player options.
-                this.players[1].ai = !this.opts.twoPlayers;
+                this.players[1].ai = !this.opts.twoPlayer;
                 this.players.forEach((player, side) => {
                     player.nodes = this.opts.nodes[side];
                 });
